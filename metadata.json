@@ -1,6 +1,6 @@
 {
-  "name": "Thinking AI Playground",
-  "description": "A high-fidelity AI chat and playground featuring Gemini 3.1 Pro's high-level thinking mode, securely authenticated with Firebase Google Sign-In and synced to Firestore.",
+  "name": "CloudNexus Deployer & Thinking Copilot",
+  "description": "Firebase live explorer + Gemini/xAI Thinking Copilot + one-click GitHub→Vercel deploy trigger. Enter your API keys and GitHub PAT once, then write & deploy from the dashboard without opening a terminal.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

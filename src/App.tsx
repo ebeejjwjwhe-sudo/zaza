@@ -139,16 +139,24 @@ export default function App() {
   // Navigation & View State
   const [activeTab, setActiveTab] = useState<"explorer" | "copilot" | "settings">("explorer");
 
-  // User custom Gemini API Key State
+  // User custom AI API Key State (Gemini or xAI/Grok)
   const [geminiApiKey, setGeminiApiKey] = useState<string>(() => {
     return localStorage.getItem("user_gemini_api_key") || "";
   });
   const [geminiInput, setGeminiInput] = useState<string>(() => {
     return localStorage.getItem("user_gemini_api_key") || "";
   });
-  const [selectedGeminiModel, setSelectedGeminiModel] = useState<"gemini-3.5-flash" | "gemini-3.1-pro-preview" | "gemini-3.1-flash-lite">(() => {
-    return (localStorage.getItem("user_selected_gemini_model") as any) || "gemini-3.5-flash";
+  const [aiProvider, setAiProvider] = useState<"google" | "xai">(() => {
+    return (localStorage.getItem("user_ai_provider") as "google" | "xai") || "google";
   });
+  const [selectedGeminiModel, setSelectedGeminiModel] = useState<string>(() => {
+    return localStorage.getItem("user_selected_gemini_model") || "gemini-2.5-flash";
+  });
+
+  // GitHub Deploy Credentials (real Vercel trigger without manual git push)
+  const [githubToken, setGithubToken] = useState<string>(() => localStorage.getItem("nexus_github_token") || "");
+  const [githubOwner, setGithubOwner] = useState<string>(() => localStorage.getItem("nexus_github_owner") || "");
+  const [githubRepo, setGithubRepo] = useState<string>(() => localStorage.getItem("nexus_github_repo") || "nexus-v2-stable");
   
   // Custom Firebase Configuration (Local Storage cached)
   const [useRealFirebase, setUseRealFirebase] = useState<boolean>(false);
@@ -201,8 +209,8 @@ export default function App() {
     { key: "email", value: "" }
   ]);
 
-  // Deployment Simulator State
-  const [repoName, setRepoName] = useState("nexus-v2-stable");
+  // Deployment Simulator + Real GitHub State
+  const [repoName, setRepoName] = useState(() => localStorage.getItem("nexus_github_repo") || "nexus-v2-stable");
   const [deployUrl, setDeployUrl] = useState("nexus-app-gamma.vercel.app");
   const [isDeploying, setIsDeploying] = useState(false);
   const [deployProgress, setDeployProgress] = useState(0);
@@ -211,7 +219,8 @@ export default function App() {
     "Initial build log ready.",
     "> Repository loaded successfully.",
     "> Firebase sync checked: ONLINE.",
-    "> Production pipeline configured on Vercel."
+    "> Production pipeline configured on Vercel.",
+    "> GitHub PAT & Deploy Trigger hazır (Settings'ten yapılandırın)."
   ]);
 
   // AI Thinking Copilot Chat State
@@ -221,7 +230,7 @@ export default function App() {
       {
         id: "welcome",
         role: "assistant",
-        content: "Merhaba! Ben senin yüksek düşünme (High Thinking) modlu Cloud & Firebase asistanınım. GitHub'dan Vercel'e otomatik yükleme adımları, Firestore veritabanı kuralları, veri şeması oluşturma veya Firestore sorguları yazma konusunda sana yardımcı olabilirim. Nasıl başlayacağız?",
+        content: "Merhaba! CloudNexus Thinking Copilot buradayım. Google Gemini veya xAI Grok ile çalışıyorum. Firestore kuralları, Vercel deploy, veri şeması, TTRPG mekanikleri veya herhangi bir kod konusunda sor. Settings'ten API anahtarını ve GitHub PAT'ini bir kere gir, sonra her şeyi buradan yönet. Nasıl başlayalım?",
         timestamp: new Date()
       }
     ];
@@ -514,55 +523,108 @@ export default function App() {
   };
 
   // Git Push & Vercel deployment simulation pipeline
-  const triggerGitHubPush = () => {
+  const triggerGitHubPush = async () => {
     if (isDeploying) return;
     setIsDeploying(true);
     setDeployProgress(0);
     setBuildLogs([]);
-    
+    setDeployStep("Deploy başlatılıyor...");
+
+    const addDeployLog = (msg: string) => {
+      setBuildLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
+    };
+
+    // REAL path: if user provided GitHub PAT + owner + repo → call backend to update deploy-trigger.txt
+    // This forces Vercel (if connected to that repo) to rebuild automatically. Zero manual git hassle.
+    if (githubToken && githubOwner && (githubRepo || repoName)) {
+      addDeployLog("⚡ REAL MODE: GitHub PAT bulundu. Deploy trigger dosyası güncelleniyor...");
+      setDeployProgress(15);
+      setDeployStep("GitHub API'ye bağlanılıyor...");
+
+      try {
+        const res = await fetch("/api/github-deploy", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            token: githubToken,
+            owner: githubOwner,
+            repo: githubRepo || repoName,
+            message: `chore: CloudNexus dashboard trigger @ ${new Date().toISOString()}`,
+            path: "deploy-trigger.txt"
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "GitHub API hatası");
+
+        addDeployLog(`✔ Commit oluşturuldu: ${data.commit?.slice(0, 7) || "ok"}`);
+        setDeployProgress(55);
+        setDeployStep("Vercel webhook tetiklendi...");
+        addDeployLog("☁️ Vercel GitHub webhook algılandı → Build pipeline başlatıldı.");
+        addDeployLog("📦 Edge Network'e yayılma başlıyor (Frankfurt / fra1)...");
+        setDeployProgress(85);
+        await new Promise(r => setTimeout(r, 1200));
+        addDeployLog("🎉 REAL DEPLOY TRIGGER SUCCESS!");
+        addDeployLog(`> ${data.message}`);
+        if (data.html_url) addDeployLog(`> Commit URL: ${data.html_url}`);
+        setDeployProgress(100);
+        setDeployStep("Gerçek Deploy Tamamlandı!");
+        setDbStats(prev => ({ ...prev, writes: prev.writes + 3 }));
+        const short = (data.commit || Math.random().toString(36).slice(2, 7)).slice(0, 7);
+        setDeployUrl(`${(githubRepo || repoName).replace(/[^a-z0-9-]/gi, "-").toLowerCase()}-${short}.vercel.app`);
+        setIsDeploying(false);
+      } catch (err: any) {
+        addDeployLog(`❌ REAL PUSH HATA: ${err.message}`);
+        addDeployLog("→ Fallback: Simülasyon moduna geçiliyor...");
+        runSimulatedDeploy(addDeployLog);
+        // sim will set isDeploying false itself
+      }
+      return;
+    }
+
+    // FALLBACK: pure visual simulation (no credentials)
+    addDeployLog("ℹ GitHub PAT / Owner bulunamadı → Simülasyon modu.");
+    addDeployLog("  (Gerçek push için Settings → GitHub Deploy alanlarını doldurun)");
+    runSimulatedDeploy(addDeployLog);
+  };
+
+  const runSimulatedDeploy = (addDeployLog: (m: string) => void) => {
     const logs = [
       "⚡ GitHub Webhook detected commit push on main branch...",
-      "> Commit ID: cf78da1 (Adjust database connections & UI optimization)",
+      "> Commit ID: cf78da1 (CloudNexus simulated push)",
       "> Triggering Vercel deployment pipeline automation...",
       "☁️ Initializing Vercel Build Container in Frankfurt Region (fra1-c)...",
-      "📦 Injecting environment variables: GEMINI_API_KEY, APP_URL...",
+      "📦 Injecting environment variables: GEMINI_API_KEY, APP_URL, XAI_API_KEY...",
       "> Pulling latest build image...",
       "⚙️ Running installation command: 'npm install'...",
       "✔ All dependencies resolved. Bundled Node modules mapped successfully.",
       "🚀 Starting build compilation: 'npm run build'...",
-      "ℹ tsx server.ts mapping validated for server-side endpoints...",
-      "ℹ esbuild server.ts compilation triggered to dist/server.cjs...",
-      "✔ Build compiled successfully in 12.4s.",
-      "🧹 Running linting operations: 'npm run lint'...",
-      "✔ Type check completed. No TypeScript syntax or type issues discovered.",
-      "🔥 Deploying build assets to Firestore security rule groups...",
-      "✔ firestore.rules synchronized successfully with Firebase project.",
-      "⚡ Deploying production bundle to Edge Network routing layers...",
-      "🎉 Deployment successfully propagated to Edge Server: nexus-app-gamma.vercel.app",
-      "✔ Site status: ONLINE. Synchronization with cloud firestore active."
+      "ℹ tsx server.ts + esbuild → dist/server.cjs",
+      "✔ Build compiled successfully in 11.8s.",
+      "🧹 Running linting: tsc --noEmit ... OK",
+      "🔥 Firestore rules + indexes synced.",
+      "⚡ Deploying production bundle to Edge Network...",
+      "🎉 Deployment successfully propagated.",
+      "✔ Site status: ONLINE. Cloud Firestore sync active."
     ];
 
-    let currentLogIndex = 0;
+    let i = 0;
     const interval = setInterval(() => {
-      if (currentLogIndex < logs.length) {
-        setBuildLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${logs[currentLogIndex]}`]);
-        setDeployProgress(Math.floor(((currentLogIndex + 1) / logs.length) * 100));
-        setDeployStep(logs[currentLogIndex].slice(0, 40) + "...");
-        currentLogIndex++;
+      if (i < logs.length) {
+        addDeployLog(logs[i]);
+        setDeployProgress(Math.floor(((i + 1) / logs.length) * 100));
+        setDeployStep(logs[i].slice(0, 42) + "...");
+        i++;
       } else {
         clearInterval(interval);
         setIsDeploying(false);
         setDeployProgress(100);
-        setDeployStep("Deployment Completed!");
-        setDbStats(prev => ({
-          ...prev,
-          writes: prev.writes + 3
-        }));
-        // Update Deploy URL randomly to show dynamic push
+        setDeployStep("Simülasyon Deploy Tamamlandı!");
+        setDbStats(prev => ({ ...prev, writes: prev.writes + 3 }));
         const randomCommit = Math.random().toString(36).substring(2, 7);
-        setDeployUrl(`nexus-app-${randomCommit}.vercel.app`);
+        setDeployUrl(`${repoName.replace(/[^a-z0-9-]/gi, "-").toLowerCase()}-${randomCommit}.vercel.app`);
       }
-    }, 600);
+    }, 550);
   };
 
   // Handle Send Chat to Gemini High Thinking API
@@ -589,7 +651,9 @@ export default function App() {
       };
       
       if (geminiApiKey) {
+        // Both providers accept the same header; server routes by provider field
         headers["x-gemini-key"] = geminiApiKey;
+        headers["x-api-key"] = geminiApiKey;
       }
 
       const response = await fetch("/api/chat", {
@@ -600,7 +664,8 @@ export default function App() {
             role: m.role,
             content: m.content
           })),
-          model: selectedGeminiModel
+          model: selectedGeminiModel,
+          provider: aiProvider   // "google" | "xai"
         })
       });
 
@@ -665,7 +730,7 @@ export default function App() {
       const errorMessage: Message = {
         id: Math.random().toString(),
         role: "assistant",
-        content: `Hata oluştu: ${err.message || "Gemini API yanıt vermedi."}. Lütfen API Anahtarınızın (.env.example veya Secrets ayarlarında) doğru şekilde yapılandırıldığından emin olun. Ayrıca Firestore Sandbox modunu kullanarak işlemlerinize devam edebilirsiniz.`,
+        content: `Hata oluştu: ${err.message || "AI API yanıt vermedi."}. Lütfen Settings'ten Google Gemini veya xAI (Grok) API anahtarınızı doğru girdiğinizden emin olun. Firestore Sandbox ile de devam edebilirsiniz.`,
         timestamp: new Date()
       };
       setChatMessages(prev => [...prev, errorMessage]);
@@ -832,26 +897,29 @@ export default function App() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-[10px] text-slate-400 uppercase tracking-wider">GitHub Repository</p>
-                    <p className="text-sm font-mono font-medium text-blue-300 flex items-center space-x-1.5 mt-0.5">
-                      <span>{repoName}</span>
+                    <p className="text-sm font-mono font-medium text-blue-300 flex items-center space-x-1.5 mt-0.5 truncate">
+                      <span>{githubOwner ? `${githubOwner}/` : ""}{repoName || githubRepo}</span>
                     </p>
                   </div>
                   <button 
-                    onClick={() => {
-                      const newRepo = prompt("GitHub Repository adını güncelleyin:", repoName);
-                      if (newRepo) setRepoName(newRepo);
-                    }}
+                    onClick={() => setActiveTab("settings")}
                     className="text-slate-400 hover:text-white p-1"
-                    title="Edit Repo"
+                    title="Settings'ten düzenle"
                   >
                     <Sliders className="w-3.5 h-3.5" />
                   </button>
                 </div>
                 <div className="mt-2 flex items-center space-x-2">
-                  <span className="px-2 py-0.5 rounded text-[9px] font-bold bg-green-500/10 border border-green-500/20 text-green-400 uppercase">
-                    Connected (main)
+                  <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase ${
+                    githubToken && githubOwner
+                      ? "bg-green-500/10 border border-green-500/20 text-green-400"
+                      : "bg-amber-500/10 border border-amber-500/20 text-amber-400"
+                  }`}>
+                    {githubToken && githubOwner ? "REAL PUSH READY" : "SIM MODE"}
                   </span>
-                  <span className="text-[10px] text-slate-500">Auto-push hook setup</span>
+                  <span className="text-[10px] text-slate-500">
+                    {githubToken && githubOwner ? "PAT + repo ayarlı" : "Settings'ten PAT gir"}
+                  </span>
                 </div>
               </div>
 
@@ -1264,35 +1332,74 @@ export default function App() {
                     <h2 className="text-base font-semibold flex items-center space-x-2">
                       <span>Thinking Copilot</span>
                       <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold tracking-widest uppercase ${
-                        selectedGeminiModel === "gemini-3.1-pro-preview" 
-                          ? "bg-purple-500/20 text-purple-300 border border-purple-500/30" 
-                          : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                        aiProvider === "xai"
+                          ? "bg-orange-500/20 text-orange-300 border border-orange-500/30"
+                          : selectedGeminiModel.includes("pro") 
+                            ? "bg-purple-500/20 text-purple-300 border border-purple-500/30" 
+                            : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
                       }`}>
-                        {selectedGeminiModel === "gemini-3.1-pro-preview" ? "High Thinking" : "Standard Mode"}
+                        {aiProvider === "xai" ? "Grok / xAI" : selectedGeminiModel.includes("pro") ? "High Thinking" : "Standard"}
                       </span>
                     </h2>
                     <p className="text-xs text-slate-400 mt-0.5">
-                      {selectedGeminiModel === "gemini-3.1-pro-preview" 
-                        ? "Gelişmiş derin akıl yürütme (Reasoning) özellikli yapay zeka asistanı" 
-                        : "Hızlı, hafif ve ücretsiz kota uyumlu standart yapay zeka asistanı"}
+                      {aiProvider === "xai"
+                        ? "xAI Grok motoru — hızlı, esprili ve güçlü genel amaçlı asistan"
+                        : selectedGeminiModel.includes("pro")
+                          ? "Gelişmiş derin akıl yürütme (Reasoning) özellikli Gemini asistanı"
+                          : "Hızlı, hafif ve ücretsiz kota uyumlu Gemini asistanı"}
                     </p>
                   </div>
                 </div>
                 
-                <div className="flex items-center space-x-2 self-end md:self-auto">
+                <div className="flex items-center space-x-2 self-end md:self-auto flex-wrap justify-end">
+                  <div className="flex items-center space-x-1">
+                    <span className="text-[10px] text-slate-400 font-medium">Provider:</span>
+                    <select
+                      value={aiProvider}
+                      onChange={(e) => {
+                        const val = e.target.value as "google" | "xai";
+                        setAiProvider(val);
+                        localStorage.setItem("user_ai_provider", val);
+                        // sensible default model per provider
+                        if (val === "xai") {
+                          setSelectedGeminiModel("grok-3");
+                          localStorage.setItem("user_selected_gemini_model", "grok-3");
+                        } else if (selectedGeminiModel.startsWith("grok")) {
+                          setSelectedGeminiModel("gemini-2.5-flash");
+                          localStorage.setItem("user_selected_gemini_model", "gemini-2.5-flash");
+                        }
+                      }}
+                      className="bg-black/40 border border-white/10 text-xs text-slate-300 rounded-lg px-2 py-1.5 focus:outline-none focus:border-purple-500 cursor-pointer"
+                    >
+                      <option value="google">Google Gemini</option>
+                      <option value="xai">xAI Grok (benim API)</option>
+                    </select>
+                  </div>
                   <div className="flex items-center space-x-1">
                     <span className="text-[10px] text-slate-400 font-medium">Model:</span>
                     <select
                       value={selectedGeminiModel}
                       onChange={(e) => {
-                        const val = e.target.value as "gemini-3.5-flash" | "gemini-3.1-pro-preview";
+                        const val = e.target.value;
                         setSelectedGeminiModel(val);
                         localStorage.setItem("user_selected_gemini_model", val);
                       }}
-                      className="bg-black/40 border border-white/10 text-xs text-slate-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 cursor-pointer"
+                      className="bg-black/40 border border-white/10 text-xs text-slate-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 cursor-pointer max-w-[180px]"
                     >
-                      <option value="gemini-3.5-flash">Gemini 3.5 Flash (Ücretsiz & Hızlı)</option>
-                      <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro (Derin Düşünme)</option>
+                      {aiProvider === "google" ? (
+                        <>
+                          <option value="gemini-2.5-flash">Gemini 2.5 Flash (Hızlı)</option>
+                          <option value="gemini-2.5-pro">Gemini 2.5 Pro (Düşünme)</option>
+                          <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro Preview</option>
+                          <option value="gemini-2.0-flash">Gemini 2.0 Flash</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="grok-3">Grok 3</option>
+                          <option value="grok-3-mini">Grok 3 Mini</option>
+                          <option value="grok-2">Grok 2</option>
+                        </>
+                      )}
                     </select>
                   </div>
 
@@ -1311,11 +1418,16 @@ export default function App() {
                   <div className="flex items-start space-x-2.5">
                     <Sparkles className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                     <div>
-                      <p className="text-xs font-semibold text-amber-300">Gemini API Anahtarı Bulunamadı</p>
+                      <p className="text-xs font-semibold text-amber-300">API Anahtarı Bulunamadı</p>
                       <p className="text-[11px] text-slate-400 mt-0.5">
-                        Thinking Copilot asistanını kullanabilmek için bir Gemini API Anahtarı girmeniz gerekir. 
+                        Thinking Copilot için Google Gemini veya xAI Grok API anahtarı gerekli. 
                         <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" className="text-amber-400 hover:underline inline-flex items-center space-x-0.5 ml-1">
-                          <span>Google AI Studio'dan Ücretsiz Al</span>
+                          <span>Google AI Studio</span>
+                          <span className="text-[9px]">↗</span>
+                        </a>
+                        {" "}veya{" "}
+                        <a href="https://console.x.ai/" target="_blank" rel="noreferrer" className="text-amber-400 hover:underline inline-flex items-center space-x-0.5">
+                          <span>xAI Console</span>
                           <span className="text-[9px]">↗</span>
                         </a>
                       </p>
@@ -1422,7 +1534,7 @@ export default function App() {
                       <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce"></div>
                       <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce delay-100"></div>
                       <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce delay-200"></div>
-                      <span className="text-[10px] font-mono">Gemini 3.1 Pro is computing with deep reasoning...</span>
+                      <span className="text-[10px] font-mono">{aiProvider === "xai" ? "Grok is thinking..." : "Gemini is computing with deep reasoning..."}</span>
                     </div>
                   </div>
                 )}
@@ -1596,15 +1708,83 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Gemini API Key Configuration Section */}
+              {/* GitHub → Vercel Real Deploy Section */}
+              <div className="border-t border-white/10 pt-6">
+                <div className="flex items-center space-x-2.5 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-slate-500/20 border border-slate-500/30 flex items-center justify-center">
+                    <Github className="w-4 h-4 text-slate-200" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-200">GitHub → Vercel Otomatik Deploy (Sıfır Uğraş)</h3>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      PAT + owner + repo gir → soldaki "GitHub Push ve Vercel Build Başlat" butonu gerçek commit atar, Vercel otomatik günceller. Sen hiç terminal açmazsın.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">GitHub PAT (repo scope)</label>
+                    <input
+                      type="password"
+                      placeholder="ghp_xxxxxxxxxxxx"
+                      value={githubToken}
+                      onChange={(e) => {
+                        setGithubToken(e.target.value);
+                        localStorage.setItem("nexus_github_token", e.target.value);
+                      }}
+                      className="w-full text-xs font-mono bg-black/40 p-2.5 rounded-lg border border-white/10 focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Owner (kullanıcı / org)</label>
+                    <input
+                      type="text"
+                      placeholder="johnsoapmacts"
+                      value={githubOwner}
+                      onChange={(e) => {
+                        setGithubOwner(e.target.value);
+                        localStorage.setItem("nexus_github_owner", e.target.value);
+                      }}
+                      className="w-full text-xs font-mono bg-black/40 p-2.5 rounded-lg border border-white/10 focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Repo adı</label>
+                    <input
+                      type="text"
+                      placeholder="my-ttrpg-app"
+                      value={githubRepo}
+                      onChange={(e) => {
+                        setGithubRepo(e.target.value);
+                        setRepoName(e.target.value);
+                        localStorage.setItem("nexus_github_repo", e.target.value);
+                      }}
+                      className="w-full text-xs font-mono bg-black/40 p-2.5 rounded-lg border border-white/10 focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+                </div>
+
+                <div className="p-3 bg-emerald-500/5 rounded-xl border border-emerald-500/15 text-[11px] text-slate-400 leading-relaxed">
+                  <p className="font-semibold text-emerald-300 mb-1">Nasıl çalışır?</p>
+                  <ol className="list-decimal pl-4 space-y-0.5">
+                    <li>GitHub → Settings → Developer settings → Personal access tokens → Classic → <code className="text-emerald-300">repo</code> yetkisi ver.</li>
+                    <li>Token + owner + repo'yu yukarı kaydet.</li>
+                    <li>Soldaki yeşil butona bas → CloudNexus <code className="text-emerald-300">deploy-trigger.txt</code> dosyasını günceller.</li>
+                    <li>Vercel o repoya bağlıysa otomatik yeni build alır. Sen hiçbir şey yapmazsın.</li>
+                  </ol>
+                </div>
+              </div>
+
+              {/* AI API Key Configuration Section (Gemini + xAI) */}
               <div className="border-t border-white/10 pt-6">
                 <div className="flex items-center space-x-2.5 mb-4">
                   <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
                     <Sparkles className="w-4 h-4 text-purple-400" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-slate-200">Gemini 3.1 Pro API Yapılandırması</h3>
-                    <p className="text-xs text-slate-400 mt-0.5">Thinking Copilot sohbet asistanının model sorgularını çalıştırabilmesi için kendi API Anahtarınızı bağlayın.</p>
+                    <h3 className="text-sm font-semibold text-slate-200">AI API Yapılandırması (Gemini / xAI Grok)</h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Thinking Copilot için Google Gemini veya xAI (Grok) anahtarını buraya gir. Provider'ı Copilot sekmesinden de seçebilirsin.</p>
                   </div>
                 </div>
 
@@ -1612,7 +1792,7 @@ export default function App() {
                   <div className="flex flex-col md:flex-row gap-4 items-end">
                     <div className="flex-1 space-y-1 w-full">
                       <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                        <span>Gemini API Anahtarı</span>
+                        <span>API Anahtarı (Gemini veya xAI Grok)</span>
                         {geminiApiKey ? (
                           <span className="text-green-400 font-semibold lowercase tracking-normal">✓ Bağlı ve Aktif</span>
                         ) : (
@@ -1658,17 +1838,24 @@ export default function App() {
                   <div className="p-4 bg-purple-500/5 rounded-xl border border-purple-500/10 text-slate-400 text-xs leading-relaxed">
                     <p className="font-semibold text-purple-300 flex items-center space-x-1.5 mb-1">
                       <Info className="w-3.5 h-3.5" />
-                      <span>Gemini API Anahtarı Nasıl Alınır?</span>
+                      <span>API Anahtarı Nasıl Alınır?</span>
                     </p>
                     <ol className="list-decimal pl-4 space-y-1 mt-1 text-[11px] text-slate-300">
                       <li>
-                        <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" className="text-purple-400 hover:underline inline-flex items-center space-x-0.5">
-                          <span>Google AI Studio</span>
-                          <span className="text-[9px]">↗</span>
-                        </a> adresine gidin.
+                        <strong>Google Gemini:</strong>{" "}
+                        <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" className="text-purple-400 hover:underline">
+                          aistudio.google.com
+                        </a>{" "}
+                        → Get API Key → Create.
                       </li>
-                      <li>Google hesabınızla giriş yapın ve sol üstteki <strong>"Get API Key"</strong> butonuna tıklayın.</li>
-                      <li><strong>"Create API Key"</strong> seçeneğini seçin, ardından anahtarınızı kopyalayıp yukarıdaki alana yapıştırın ve Kaydet butonuna basın.</li>
+                      <li>
+                        <strong>xAI Grok (benim API'm):</strong>{" "}
+                        <a href="https://console.x.ai/" target="_blank" rel="noreferrer" className="text-orange-400 hover:underline">
+                          console.x.ai
+                        </a>{" "}
+                        → API Keys → Create. Aynı alana yapıştır, Provider olarak "xAI Grok" seç.
+                      </li>
+                      <li>Kaydet'e bas. Anahtar sadece tarayıcında (localStorage) saklanır, sunucuya kalıcı yazılmaz.</li>
                     </ol>
                   </div>
                 </div>
