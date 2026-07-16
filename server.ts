@@ -11,12 +11,11 @@ const PORT = 3000;
 
 app.use(express.json());
 
-// Initialize GoogleGenAI. It will pick up process.env.GEMINI_API_KEY
-// Let's lazy-initialize or check if the API key is present
-const getAIClient = () => {
-  const apiKey = process.env.GEMINI_API_KEY;
+// Initialize GoogleGenAI. It will pick up process.env.GEMINI_API_KEY or custom header key
+const getAIClient = (customKey?: string) => {
+  const apiKey = customKey || process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    throw new Error("GEMINI_API_KEY is not defined in environment variables. Please configure it in your Secrets settings.");
+    throw new Error("GEMINI_API_KEY environment variable is not defined and no custom Gemini API Key was entered in the app settings.");
   }
   return new GoogleGenAI({ apiKey });
 };
@@ -37,7 +36,8 @@ app.post("/api/chat", async (req, res) => {
       return;
     }
 
-    const ai = getAIClient();
+    const customKey = req.headers["x-gemini-key"] as string | undefined;
+    const ai = getAIClient(customKey);
 
     // Map message list to Gemini standard structures
     // @google/genai generateContent format expects: contents: [{ role: 'user' | 'model', parts: [{ text: '...' }] }]

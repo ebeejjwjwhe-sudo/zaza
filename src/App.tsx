@@ -137,6 +137,14 @@ interface Message {
 export default function App() {
   // Navigation & View State
   const [activeTab, setActiveTab] = useState<"explorer" | "copilot" | "settings">("explorer");
+
+  // User custom Gemini API Key State
+  const [geminiApiKey, setGeminiApiKey] = useState<string>(() => {
+    return localStorage.getItem("user_gemini_api_key") || "";
+  });
+  const [geminiInput, setGeminiInput] = useState<string>(() => {
+    return localStorage.getItem("user_gemini_api_key") || "";
+  });
   
   // Custom Firebase Configuration (Local Storage cached)
   const [useRealFirebase, setUseRealFirebase] = useState<boolean>(false);
@@ -572,11 +580,17 @@ export default function App() {
     setChatMessages(updatedHistory);
 
     try {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json"
+      };
+      
+      if (geminiApiKey) {
+        headers["x-gemini-key"] = geminiApiKey;
+      }
+
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers,
         body: JSON.stringify({
           messages: updatedHistory.map(m => ({
             role: m.role,
@@ -719,7 +733,7 @@ export default function App() {
             className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${activeTab === "settings" ? "bg-white/10 text-white shadow" : "text-slate-400 hover:text-white"}`}
           >
             <Settings className="w-3.5 h-3.5" />
-            <span>Firebase Config</span>
+            <span>Settings & APIs</span>
           </button>
         </div>
 
@@ -1233,6 +1247,48 @@ export default function App() {
                 </button>
               </div>
 
+              {/* Inline API Key Warning Banner if missing */}
+              {!geminiApiKey && (
+                <div className="bg-amber-500/10 border-b border-amber-500/20 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-start space-x-2.5">
+                    <Sparkles className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-semibold text-amber-300">Gemini API Anahtarı Bulunamadı</p>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Thinking Copilot asistanını kullanabilmek için bir Gemini API Anahtarı girmeniz gerekir. 
+                        <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" className="text-amber-400 hover:underline inline-flex items-center space-x-0.5 ml-1">
+                          <span>Google AI Studio'dan Ücretsiz Al</span>
+                          <span className="text-[9px]">↗</span>
+                        </a>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2 w-full sm:w-auto">
+                    <input 
+                      type="password"
+                      placeholder="API Anahtarını Yapıştırın (AIzaSy...)"
+                      value={geminiInput}
+                      onChange={(e) => setGeminiInput(e.target.value)}
+                      className="flex-1 sm:w-48 bg-black/50 border border-amber-500/30 rounded-lg px-2.5 py-1.5 text-xs font-mono text-amber-200 placeholder:text-slate-600 focus:outline-none focus:border-amber-500"
+                    />
+                    <button
+                      onClick={() => {
+                        if (!geminiInput.trim()) {
+                          alert("Lütfen geçerli bir API anahtarı girin!");
+                          return;
+                        }
+                        setGeminiApiKey(geminiInput.trim());
+                        localStorage.setItem("user_gemini_api_key", geminiInput.trim());
+                        alert("API Anahtarı başarıyla kaydedildi! Copilot artık aktif.");
+                      }}
+                      className="px-3 py-1.5 bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold rounded-lg transition-all"
+                    >
+                      Kaydet
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Chat message listing */}
               <div className="flex-1 p-5 overflow-y-auto space-y-4 max-h-[380px] md:max-h-[440px] bg-black/10">
                 {chatMessages.map((msg) => {
@@ -1479,6 +1535,84 @@ export default function App() {
                   <p className="mt-1">
                     Bu konsol hem yerel simülatör (Sandbox) hem de gerçek çevrimiçi (online) Firebase projesi ile çalışır. Kendi Firebase Console projenizden aldığınız Web SDK Yapılandırmasını (Firebase Config JSON) yukarıya girerek kaydettiğinizde, sistem otomatik olarak gerçek Firestore veritabanınıza bağlanarak verileri canlı olarak sekronize eder.
                   </p>
+                </div>
+              </div>
+
+              {/* Gemini API Key Configuration Section */}
+              <div className="border-t border-white/10 pt-6">
+                <div className="flex items-center space-x-2.5 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 text-purple-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-200">Gemini 3.1 Pro API Yapılandırması</h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Thinking Copilot sohbet asistanının model sorgularını çalıştırabilmesi için kendi API Anahtarınızı bağlayın.</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex flex-col md:flex-row gap-4 items-end">
+                    <div className="flex-1 space-y-1 w-full">
+                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                        <span>Gemini API Anahtarı</span>
+                        {geminiApiKey ? (
+                          <span className="text-green-400 font-semibold lowercase tracking-normal">✓ Bağlı ve Aktif</span>
+                        ) : (
+                          <span className="text-rose-400 font-semibold lowercase tracking-normal">✗ API Anahtarı Yok</span>
+                        )}
+                      </label>
+                      <input 
+                        type="password" 
+                        placeholder="AIzaSyA..."
+                        value={geminiInput}
+                        onChange={(e) => setGeminiInput(e.target.value)}
+                        className="w-full text-xs font-mono bg-black/40 p-2.5 rounded-lg border border-white/10 focus:outline-none focus:border-purple-500 text-purple-200"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2 shrink-0 w-full md:w-auto justify-end">
+                      {geminiApiKey && (
+                        <button
+                          onClick={() => {
+                            if (confirm("API anahtarını silmek istiyor musunuz?")) {
+                              setGeminiApiKey("");
+                              setGeminiInput("");
+                              localStorage.removeItem("user_gemini_api_key");
+                            }
+                          }}
+                          className="px-4 py-2.5 border border-rose-500/20 hover:bg-rose-500/10 text-rose-300 rounded-lg text-xs font-medium transition-all"
+                        >
+                          Temizle
+                        </button>
+                      )}
+                      <button
+                        onClick={() => {
+                          setGeminiApiKey(geminiInput.trim());
+                          localStorage.setItem("user_gemini_api_key", geminiInput.trim());
+                          alert("Gemini API Anahtarı başarıyla güncellendi!");
+                        }}
+                        className="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg text-xs hover:shadow-lg transition-all cursor-pointer"
+                      >
+                        Kaydet
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-purple-500/5 rounded-xl border border-purple-500/10 text-slate-400 text-xs leading-relaxed">
+                    <p className="font-semibold text-purple-300 flex items-center space-x-1.5 mb-1">
+                      <Info className="w-3.5 h-3.5" />
+                      <span>Gemini API Anahtarı Nasıl Alınır?</span>
+                    </p>
+                    <ol className="list-decimal pl-4 space-y-1 mt-1 text-[11px] text-slate-300">
+                      <li>
+                        <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" className="text-purple-400 hover:underline inline-flex items-center space-x-0.5">
+                          <span>Google AI Studio</span>
+                          <span className="text-[9px]">↗</span>
+                        </a> adresine gidin.
+                      </li>
+                      <li>Google hesabınızla giriş yapın ve sol üstteki <strong>"Get API Key"</strong> butonuna tıklayın.</li>
+                      <li><strong>"Create API Key"</strong> seçeneğini seçin, ardından anahtarınızı kopyalayıp yukarıdaki alana yapıştırın ve Kaydet butonuna basın.</li>
+                    </ol>
+                  </div>
                 </div>
               </div>
 
