@@ -30,7 +30,7 @@ enum ThinkingLevel {
 // API endpoint for High Thinking Gemini Chat
 app.post("/api/chat", async (req, res) => {
   try {
-    const { messages } = req.body;
+    const { messages, model } = req.body;
     if (!messages || !Array.isArray(messages)) {
       res.status(400).json({ error: "Invalid messages array in request body." });
       return;
@@ -46,15 +46,20 @@ app.post("/api/chat", async (req, res) => {
       parts: [{ text: m.content }]
     }));
 
+    const selectedModel = model || "gemini-3.5-flash";
+    const config: any = {};
+
+    // Only apply thinkingConfig for supported models (Gemini 3.1 Pro)
+    if (selectedModel === "gemini-3.1-pro-preview") {
+      config.thinkingConfig = {
+        thinkingLevel: "HIGH"
+      };
+    }
+
     const response = await ai.models.generateContent({
-      model: "gemini-3.1-pro-preview",
+      model: selectedModel,
       contents: contents,
-      config: {
-        thinkingConfig: {
-          thinkingLevel: "HIGH" as any // Setting thinking level to ThinkingLevel.HIGH
-        }
-        // Do NOT set maxOutputTokens here as per instructions
-      }
+      config: config
     });
 
     // Extract the text and any thoughts if available
@@ -83,6 +88,28 @@ app.post("/api/chat", async (req, res) => {
       details: error.toString()
     });
   }
+});
+
+// Endpoint to reliably download the workspace ZIP
+app.get("/api/download-zip", (req, res) => {
+  const zipPath = path.join(process.cwd(), "public", "workspace.zip");
+  res.download(zipPath, "workspace.zip", (err) => {
+    if (err) {
+      console.error("Error downloading zip:", err);
+      res.status(404).send("Zip file not found. Please try again or refresh.");
+    }
+  });
+});
+
+// Endpoint to reliably download the workspace TAR.GZ
+app.get("/api/download-tar", (req, res) => {
+  const tarPath = path.join(process.cwd(), "public", "workspace.tar.gz");
+  res.download(tarPath, "workspace.tar.gz", (err) => {
+    if (err) {
+      console.error("Error downloading tar:", err);
+      res.status(404).send("Tar.gz file not found. Please try again or refresh.");
+    }
+  });
 });
 
 // Start server and mount Vite

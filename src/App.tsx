@@ -31,7 +31,8 @@ import {
   Activity, 
   Zap, 
   Sparkles,
-  Info
+  Info,
+  Download
 } from "lucide-react";
 import { initializeApp, getApp, getApps } from "firebase/app";
 import { 
@@ -144,6 +145,9 @@ export default function App() {
   });
   const [geminiInput, setGeminiInput] = useState<string>(() => {
     return localStorage.getItem("user_gemini_api_key") || "";
+  });
+  const [selectedGeminiModel, setSelectedGeminiModel] = useState<"gemini-3.5-flash" | "gemini-3.1-pro-preview" | "gemini-3.1-flash-lite">(() => {
+    return (localStorage.getItem("user_selected_gemini_model") as any) || "gemini-3.5-flash";
   });
   
   // Custom Firebase Configuration (Local Storage cached)
@@ -595,13 +599,41 @@ export default function App() {
           messages: updatedHistory.map(m => ({
             role: m.role,
             content: m.content
-          }))
+          })),
+          model: selectedGeminiModel
         })
       });
 
       if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.error || "Sunucu ile iletişim kurulamadı.");
+        let errMsg = "Sunucu ile iletişim kurulamadı.";
+        try {
+          const text = await response.text();
+          try {
+            const errData = JSON.parse(text);
+            const serverErr = errData.error || errMsg;
+            
+            // If the error message is a nested JSON string from Google's API, try to parse it
+            try {
+              const nested = JSON.parse(serverErr);
+              if (nested && nested.error && nested.error.message) {
+                errMsg = nested.error.message;
+              } else {
+                errMsg = serverErr;
+              }
+            } catch (e) {
+              errMsg = serverErr;
+            }
+          } catch (e) {
+            // Not JSON, use the response text if it's brief
+            if (text && text.length < 500) {
+              errMsg = text;
+            }
+          }
+        } catch (e) {
+          // Fallback to general status message
+          errMsg = `Sunucu hatası (Durum: ${response.status})`;
+        }
+        throw new Error(errMsg);
       }
 
       const data = await response.json();
@@ -1223,28 +1255,54 @@ export default function App() {
             <div className="flex-1 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden flex flex-col shadow-2xl shadow-black/40 min-h-[500px]">
               
               {/* Chat Header */}
-              <div className="p-5 border-b border-white/10 flex items-center justify-between bg-white/5">
+              <div className="p-5 border-b border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white/5">
                 <div className="flex items-center space-x-2.5">
                   <div className="w-8 h-8 rounded-lg bg-purple-500/20 border border-purple-500/30 flex items-center justify-center">
                     <Brain className="w-4.5 h-4.5 text-purple-400" />
                   </div>
                   <div>
                     <h2 className="text-base font-semibold flex items-center space-x-2">
-                      <span>Gemini 3.1 Pro Copilot</span>
-                      <span className="px-1.5 py-0.5 rounded text-[9px] bg-purple-500/20 text-purple-300 font-bold tracking-widest uppercase">
-                        High Thinking Mode Active
+                      <span>Thinking Copilot</span>
+                      <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold tracking-widest uppercase ${
+                        selectedGeminiModel === "gemini-3.1-pro-preview" 
+                          ? "bg-purple-500/20 text-purple-300 border border-purple-500/30" 
+                          : "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                      }`}>
+                        {selectedGeminiModel === "gemini-3.1-pro-preview" ? "High Thinking" : "Standard Mode"}
                       </span>
                     </h2>
-                    <p className="text-xs text-slate-400 mt-0.5">Firebase schema, deployment diagnostics, and automated code advisor</p>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      {selectedGeminiModel === "gemini-3.1-pro-preview" 
+                        ? "Gelişmiş derin akıl yürütme (Reasoning) özellikli yapay zeka asistanı" 
+                        : "Hızlı, hafif ve ücretsiz kota uyumlu standart yapay zeka asistanı"}
+                    </p>
                   </div>
                 </div>
                 
-                <button 
-                  onClick={handleClearChat}
-                  className="px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-medium text-slate-300 border border-white/5 hover:border-white/10 transition-all"
-                >
-                  Clear Chat
-                </button>
+                <div className="flex items-center space-x-2 self-end md:self-auto">
+                  <div className="flex items-center space-x-1">
+                    <span className="text-[10px] text-slate-400 font-medium">Model:</span>
+                    <select
+                      value={selectedGeminiModel}
+                      onChange={(e) => {
+                        const val = e.target.value as "gemini-3.5-flash" | "gemini-3.1-pro-preview";
+                        setSelectedGeminiModel(val);
+                        localStorage.setItem("user_selected_gemini_model", val);
+                      }}
+                      className="bg-black/40 border border-white/10 text-xs text-slate-300 rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50 cursor-pointer"
+                    >
+                      <option value="gemini-3.5-flash">Gemini 3.5 Flash (Ücretsiz & Hızlı)</option>
+                      <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro (Derin Düşünme)</option>
+                    </select>
+                  </div>
+
+                  <button 
+                    onClick={handleClearChat}
+                    className="px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-medium text-slate-300 border border-white/5 hover:border-white/10 transition-all"
+                  >
+                    Temizle
+                  </button>
+                </div>
               </div>
 
               {/* Inline API Key Warning Banner if missing */}
@@ -1613,6 +1671,76 @@ export default function App() {
                       <li><strong>"Create API Key"</strong> seçeneğini seçin, ardından anahtarınızı kopyalayıp yukarıdaki alana yapıştırın ve Kaydet butonuna basın.</li>
                     </ol>
                   </div>
+                </div>
+              </div>
+
+              {/* Workspace Download Section */}
+              <div className="border-t border-white/10 pt-6">
+                <div className="flex items-center space-x-2.5 mb-4">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center">
+                    <Download className="w-4 h-4 text-emerald-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold text-slate-200">Projeyi İndir (GitHub'a Yüklemek İçin)</h3>
+                    <p className="text-xs text-slate-400 mt-0.5">Tüm kod tabanını toplu olarak ZIP veya TAR formatında indirip kendi bilgisayarınızda veya GitHub'da çalıştırabilirsiniz.</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <a 
+                    href="/api/download-zip" 
+                    download="workspace.zip"
+                    className="flex items-center justify-between p-4 bg-emerald-500/5 hover:bg-emerald-500/10 border border-emerald-500/20 hover:border-emerald-500/30 rounded-xl transition-all group"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2.5 bg-emerald-500/15 rounded-lg text-emerald-400 group-hover:scale-110 transition-transform">
+                        <Download className="w-4 h-4" />
+                      </div>
+                      <div className="text-left">
+                        <p className="text-xs font-bold text-slate-200">Yedek ZIP Arşivi</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">En popüler format (.zip)</p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-semibold text-emerald-400 hover:underline">İndir ↗</span>
+                  </a>
+
+                  <a 
+                    href="/api/download-tar" 
+                    download="workspace.tar.gz"
+                    className="flex items-center justify-between p-4 bg-blue-500/5 hover:bg-blue-500/10 border border-blue-500/20 hover:border-blue-500/30 rounded-xl transition-all group"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2.5 bg-blue-500/15 rounded-lg text-blue-400 group-hover:scale-110 transition-transform">
+                        <Download className="w-4 h-4" />
+                      </div>
+                      <div className="text-left">
+                        <p className="text-xs font-bold text-slate-200">Linux/MacOS TAR.GZ</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">Sıkıştırılmış Gzip arşivi (.tar.gz)</p>
+                      </div>
+                    </div>
+                    <span className="text-xs font-semibold text-blue-400 hover:underline">İndir ↗</span>
+                  </a>
+                </div>
+
+                <div className="mt-4 p-4 bg-slate-500/5 rounded-xl border border-white/5 text-slate-400 text-xs">
+                  <p className="font-semibold text-slate-300 flex items-center space-x-1.5 mb-1">
+                    <Terminal className="w-3.5 h-3.5 text-slate-400" />
+                    <span>GitHub'a Toplu Yükleme Kılavuzu:</span>
+                  </p>
+                  <ol className="list-decimal pl-4 space-y-1 text-[11px] text-slate-400 mt-1.5">
+                    <li>ZIP dosyasını bilgisayarınıza indirin ve bir klasöre çıkartın.</li>
+                    <li>Klasörün içinde terminalinizi (veya komut satırını) açın.</li>
+                    <li>Sırasıyla şu komutları yazın:
+                      <code className="block bg-black/50 p-2 rounded border border-white/5 font-mono text-[10px] text-emerald-300 mt-1 whitespace-pre">
+                        git init{"\n"}
+                        git add .{"\n"}
+                        git commit -m "ilk yukleme"{"\n"}
+                        git branch -M main{"\n"}
+                        git remote add origin https://github.com/KULLANICI_ADINIZ/DEPO_ADINIZ.git{"\n"}
+                        git push -u origin main
+                      </code>
+                    </li>
+                  </ol>
                 </div>
               </div>
 
