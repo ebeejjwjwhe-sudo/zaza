@@ -1,6 +1,0 @@
-{
-  "name": "CloudNexus Deployer & Thinking Copilot",
-  "description": "Firebase live explorer + Gemini/xAI Thinking Copilot + one-click GitHub→Vercel deploy trigger. Enter your API keys and GitHub PAT once, then write & deploy from the dashboard without opening a terminal.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
