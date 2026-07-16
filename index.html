@@ -3,654 +3,408 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ucube Studio — AI Absürt Meme Video Üretici</title>
-  <meta name="description" content="DüzgünTerim tarzı ucube Instagram Reels videoları üret. Suno müzik promptu + video AI promptu + konuşturma metinleri. Tek tıkla kopyala." />
+  <title>Ucube Studio — Insta Referans → Otomatik Kling + Suno</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          },
-          colors: {
-            ucube: {
-              50: '#fdf4ff',
-              100: '#fae8ff',
-              200: '#f5d0fe',
-              300: '#f0abfc',
-              400: '#e879f9',
-              500: '#d946ef',
-              600: '#c026d3',
-              700: '#a21caf',
-              800: '#86198f',
-              900: '#701a75',
-            }
-          },
-          animation: {
-            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-            'float': 'float 6s ease-in-out infinite',
-          },
-          keyframes: {
-            float: {
-              '0%, 100%': { transform: 'translateY(0px)' },
-              '50%': { transform: 'translateY(-12px)' },
-            }
-          }
+          fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'], mono: ['JetBrains Mono', 'monospace'] },
+          animation: { float: 'float 6s ease-in-out infinite' },
+          keyframes: { float: { '0%,100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-10px)' } } }
         }
       }
     }
   </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    body { background: #030712; }
-    .glass { background: rgba(255,255,255,0.04); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
-    .glass-strong { background: rgba(255,255,255,0.07); backdrop-filter: blur(24px); border: 1px solid rgba(255,255,255,0.12); }
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 99px; }
-    .gradient-text {
-      background: linear-gradient(135deg, #e879f9 0%, #a78bfa 50%, #38bdf8 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -12px rgba(217,70,239,0.25); }
-    .product-active { ring: 2px solid #d946ef; background: rgba(217,70,239,0.12); }
+    body{background:#030712}
+    .glass{background:rgba(255,255,255,.04);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.08)}
+    .glass-strong{background:rgba(255,255,255,.07);backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,.12)}
+    ::-webkit-scrollbar{width:5px}
+    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.12);border-radius:99px}
+    .gradient-text{background:linear-gradient(135deg,#e879f9,#a78bfa,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .step-num{background:linear-gradient(135deg,#d946ef,#8b5cf6)}
   </style>
 </head>
 <body class="text-slate-100 font-sans antialiased min-h-screen selection:bg-fuchsia-500/30">
-
-  <!-- Background orbs -->
   <div class="fixed inset-0 overflow-hidden pointer-events-none">
-    <div class="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-fuchsia-600/20 rounded-full blur-[120px]"></div>
-    <div class="absolute bottom-[-15%] right-[-10%] w-[45%] h-[45%] bg-violet-600/15 rounded-full blur-[120px]"></div>
-    <div class="absolute top-[40%] left-[60%] w-[30%] h-[30%] bg-cyan-500/10 rounded-full blur-[100px]"></div>
+    <div class="absolute top-[-15%] left-[-10%] w-[50%] h-[45%] bg-fuchsia-600/20 rounded-full blur-[130px]"></div>
+    <div class="absolute bottom-[-10%] right-[-8%] w-[45%] h-[40%] bg-violet-600/15 rounded-full blur-[120px]"></div>
   </div>
 
-  <!-- NAV -->
-  <nav class="relative z-20 h-16 flex items-center justify-between px-4 sm:px-8 glass border-b border-white/5 sticky top-0">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-fuchsia-500 to-violet-600 flex items-center justify-center shadow-lg shadow-fuchsia-500/30">
-        <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+  <nav class="relative z-30 h-14 flex items-center justify-between px-4 sm:px-6 glass border-b border-white/5 sticky top-0">
+    <div class="flex items-center gap-2.5">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-fuchsia-500 to-violet-600 flex items-center justify-center shadow-lg shadow-fuchsia-500/30">
+        <i data-lucide="sparkles" class="w-4 h-4 text-white"></i>
       </div>
       <div>
-        <h1 class="font-bold text-lg tracking-tight gradient-text">Ucube Studio</h1>
-        <p class="text-[10px] text-slate-400 -mt-0.5">DüzgünTerim Style • AI Meme Video</p>
+        <h1 class="font-bold text-base tracking-tight gradient-text leading-none">Ucube Studio</h1>
+        <p class="text-[9px] text-slate-400">Insta Referans → Kling + Suno Otomatik</p>
       </div>
     </div>
-    <div class="flex items-center gap-3">
-      <span class="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/20">
-        <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></span>
-        Suno + Video Prompt Ready
-      </span>
-      <button onclick="document.getElementById('generator').scrollIntoView({behavior:'smooth'})" class="px-4 py-2 rounded-xl bg-gradient-to-r from-fuchsia-600 to-violet-600 text-xs font-bold hover:opacity-90 transition shadow-lg shadow-fuchsia-500/20">
-        Hemen Üret
-      </button>
-    </div>
+    <button onclick="document.getElementById('mainFlow').scrollIntoView({behavior:'smooth'})" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-fuchsia-600 to-violet-600 text-xs font-bold shadow-lg shadow-fuchsia-500/20">Üretmeye Başla</button>
   </nav>
 
-  <main class="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-16">
-
-    <!-- HERO -->
-    <section class="text-center space-y-6 pt-6">
-      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass text-xs text-fuchsia-300 border border-fuchsia-500/20">
-        <i data-lucide="zap" class="w-3.5 h-3.5"></i>
-        Instagram Reels & TikTok için optimize
+  <main class="relative z-10 max-w-5xl mx-auto px-4 py-8 sm:py-10 space-y-8">
+    <section class="text-center space-y-4">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full glass text-[11px] text-fuchsia-300 border border-fuchsia-500/20">
+        <i data-lucide="instagram" class="w-3.5 h-3.5"></i> DüzgünTerim / ucube post tarzı
       </div>
-      <h2 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-[1.1]">
-        Ucube videoları<br>
-        <span class="gradient-text">saniyeler içinde üret</span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight leading-[1.15]">
+        Instagram postunu at<br><span class="gradient-text">ne istediğini yaz → otomatik üretsin</span>
       </h2>
-      <p class="text-slate-400 max-w-2xl mx-auto text-base sm:text-lg">
-        DüzgünTerim tarzı absürt, konuşturmalı, müzikli meme videoları. 
-        Promptunu yaz → AI senaryo + <strong class="text-fuchsia-300">Suno müzik promptu</strong> + video AI promptu + text overlay üretir. 
-        Müzik uzunluğu ve stili senin elinde.
+      <p class="text-slate-400 max-w-xl mx-auto text-sm">
+        Referans Instagram videosunun tarzını + senin isteğini alıp<br class="hidden sm:block">
+        <strong class="text-fuchsia-300">Kling AI video promptu</strong> + <strong class="text-violet-300">Suno müzik promptu</strong> + konuşturma + overlay’i tek seferde basıyor.
       </p>
-      <div class="flex flex-wrap justify-center gap-3 pt-2">
-        <div class="flex items-center gap-2 text-xs text-slate-400">
-          <i data-lucide="music" class="w-4 h-4 text-fuchsia-400"></i>
-          Suno uyumlu
-        </div>
-        <div class="flex items-center gap-2 text-xs text-slate-400">
-          <i data-lucide="clapperboard" class="w-4 h-4 text-violet-400"></i>
-          Kling / Runway / Luma ready
-        </div>
-        <div class="flex items-center gap-2 text-xs text-slate-400">
-          <i data-lucide="type" class="w-4 h-4 text-cyan-400"></i>
-          Konuşturma metinleri
-        </div>
-      </div>
     </section>
 
-    <!-- PRODUCTS / TEMPLATES -->
-    <section>
-      <div class="flex items-end justify-between mb-6">
+    <section id="mainFlow" class="glass-strong rounded-3xl p-5 sm:p-7 shadow-2xl space-y-6">
+      <!-- 1 -->
+      <div class="space-y-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg step-num flex items-center justify-center text-xs font-bold text-white">1</div>
+          <div>
+            <h3 class="font-bold text-sm">Instagram Referans (Ucube Post)</h3>
+            <p class="text-[11px] text-slate-400">Linki yapıştır veya videoyu tarif et. Site tarzı buradan alacak.</p>
+          </div>
+        </div>
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div>
+            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Instagram Linki (opsiyonel)</label>
+            <input id="instaLink" type="url" placeholder="https://www.instagram.com/p/DaP5y0aM6pf/ veya /reel/..." class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-fuchsia-500/50 placeholder:text-slate-600">
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Hızlı Stil Seç</label>
+            <select id="quickStyle" onchange="applyQuickStyle()" class="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-xs focus:outline-none focus:border-fuchsia-500/50">
+              <option value="">— Manuel yazacağım —</option>
+              <option value="pilic">🐔 Piliç suyu içen adam saldırıyor</option>
+              <option value="burak">🧔 Burak karakteri absürt olay</option>
+              <option value="futbol">⚽ Futbol ucube / gol kaosu</option>
+              <option value="celebrity">🌟 Ünlü fail / drama</option>
+              <option value="gunluk">🏠 Günlük hayat birden deliye dönüyor</option>
+              <option value="hayvan">🐕 Hayvan konuşturma / saldırı</option>
+              <option value="duzgun">📱 DüzgünTerim genel ucube tarz</option>
+            </select>
+          </div>
+        </div>
         <div>
-          <h3 class="text-xl font-bold flex items-center gap-2">
-            <i data-lucide="package" class="w-5 h-5 text-fuchsia-400"></i>
-            Ürün Şablonları
-          </h3>
-          <p class="text-sm text-slate-400 mt-1">Instagram’daki ucube post tarzlarından seç. Kullanıcı isteğine göre değişir.</p>
+          <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5 block">Referans Video Açıklaması / Caption</label>
+          <textarea id="instaRef" rows="3" placeholder="Örn: Adam piliç suyu içiyor, gözleri dönüyor, tavuklara saldırıyor, piliçler panik içinde kaçıyor, Türkçe konuşturma, 15-20s Reels..." class="w-full bg-black/40 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-fuchsia-500/50 placeholder:text-slate-600 resize-none"></textarea>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" id="productGrid">
-        <!-- filled by JS -->
-      </div>
-    </section>
-
-    <!-- GENERATOR -->
-    <section id="generator" class="space-y-6">
-      <div class="glass-strong rounded-3xl p-6 sm:p-8 shadow-2xl">
-        <div class="flex flex-col lg:flex-row gap-8">
-          
-          <!-- LEFT: INPUTS -->
-          <div class="flex-1 space-y-5">
-            <div>
-              <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 block">Seçili Ürün / Tema</label>
-              <div id="selectedProductBadge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-300 text-sm font-medium">
-                <span>🔥</span> <span id="selectedProductName">Piliç Saldırısı (Klasik)</span>
-              </div>
-            </div>
-
-            <div>
-              <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 block">Senin Ucube Fikrin / Prompt</label>
-              <textarea id="userPrompt" rows="4" placeholder="Örn: Burak piliç suyu içince azıyor, piliçlere saldırıyor, tavuklar panik içinde kaçıyor, Türkçe konuşturma var..." class="w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-fuchsia-500/60 focus:ring-1 focus:ring-fuchsia-500/30 placeholder:text-slate-600 resize-none"></textarea>
-            </div>
-
-            <!-- MUSIC CUSTOMIZER -->
-            <div class="space-y-3 p-4 rounded-2xl bg-black/30 border border-white/5">
-              <div class="flex items-center justify-between">
-                <label class="text-[11px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                  <i data-lucide="music-2" class="w-3.5 h-3.5 text-fuchsia-400"></i>
-                  Müzik Ayarları (Suno)
-                </label>
-                <span class="text-[10px] text-slate-500">Suno Music AI için optimize</span>
-              </div>
-              
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="text-[10px] text-slate-500 mb-1 block">Uzunluk</label>
-                  <select id="musicLength" class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-fuchsia-500">
-                    <option value="15">15 saniye (Reels)</option>
-                    <option value="20" selected>20 saniye</option>
-                    <option value="30">30 saniye</option>
-                    <option value="45">45 saniye</option>
-                    <option value="60">60 saniye</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="text-[10px] text-slate-500 mb-1 block">Enerji / Mood</label>
-                  <select id="musicMood" class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-fuchsia-500">
-                    <option value="chaotic">Kaotik / Absürt</option>
-                    <option value="epic" selected>Epik + Komik</option>
-                    <option value="trap">Trap / Bass heavy</option>
-                    <option value="cinematic">Sinematik + Drama</option>
-                    <option value="turkish">Türkçe Rap / Arabesk fusion</option>
-                    <option value="meme">Meme classic (high energy)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label class="text-[10px] text-slate-500 mb-1 block">Ekstra müzik isteği (opsiyonel)</label>
-                <input id="musicExtra" type="text" placeholder="Örn: piliç sesleri, gülme efekti, ani drop..." class="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-xs focus:outline-none focus:border-fuchsia-500 placeholder:text-slate-600">
-              </div>
-            </div>
-
-            <button onclick="generateAll()" id="generateBtn" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-fuchsia-600 via-violet-600 to-cyan-600 font-bold text-sm flex items-center justify-center gap-2 shadow-xl shadow-fuchsia-500/25 hover:opacity-95 active:scale-[0.98] transition-all">
-              <i data-lucide="wand-2" class="w-4 h-4"></i>
-              <span>Ucube Video + Müzik Üret</span>
-            </button>
+      <!-- 2 -->
+      <div class="space-y-3 pt-2 border-t border-white/5">
+        <div class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg step-num flex items-center justify-center text-xs font-bold text-white">2</div>
+          <div>
+            <h3 class="font-bold text-sm">Ne İstiyorsun? (Senin Fikrin)</h3>
+            <p class="text-[11px] text-slate-400">Referans tarza sadık kalarak ne üretmesini istediğini yaz.</p>
           </div>
+        </div>
+        <textarea id="userWant" rows="3" placeholder="Örn: Aynı piliç saldırısı tarzında ama Burak bu sefer kola içiyor ve ineklere saldırıyor. Daha komik konuşturma, sonu inekler Burak'ı kovalasın..." class="w-full bg-black/40 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-fuchsia-500/50 placeholder:text-slate-600 resize-none"></textarea>
+      </div>
 
-          <!-- RIGHT: PREVIEW / RESULT -->
-          <div class="flex-1 space-y-4">
-            <div id="resultEmpty" class="h-full min-h-[320px] flex flex-col items-center justify-center text-center p-8 rounded-2xl border border-dashed border-white/10 bg-black/20">
-              <div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-4 animate-float">
-                <i data-lucide="clapperboard" class="w-8 h-8 text-slate-500"></i>
-              </div>
-              <p class="text-sm text-slate-400 font-medium">Sol taraftan ürün seç + prompt yaz</p>
-              <p class="text-xs text-slate-600 mt-1">Suno + Video AI + Overlay hazır paket gelecek</p>
-            </div>
-
-            <div id="resultPanel" class="hidden space-y-4">
-              <!-- Loading -->
-              <div id="loadingState" class="hidden py-12 text-center">
-                <div class="inline-flex items-center gap-3 text-fuchsia-300">
-                  <div class="w-5 h-5 border-2 border-fuchsia-400 border-t-transparent rounded-full animate-spin"></div>
-                  <span class="text-sm font-medium">Ucube beyin çalışıyor...</span>
-                </div>
-              </div>
-
-              <!-- Results -->
-              <div id="resultsContent" class="space-y-4">
-                <!-- filled by JS -->
-              </div>
-            </div>
+      <!-- 3 -->
+      <div class="space-y-3 pt-2 border-t border-white/5">
+        <div class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg step-num flex items-center justify-center text-xs font-bold text-white">3</div>
+          <div>
+            <h3 class="font-bold text-sm">Müzik + Kling Ayarları</h3>
+            <p class="text-[11px] text-slate-400">Suno uzunluğu + enerji. Kling motion.</p>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div>
+            <label class="text-[10px] text-slate-500 mb-1 block">Suno Uzunluk</label>
+            <select id="musicLength" class="w-full bg-black/50 border border-white/10 rounded-xl px-2.5 py-2 text-xs">
+              <option value="15">15 sn</option>
+              <option value="20" selected>20 sn</option>
+              <option value="25">25 sn</option>
+              <option value="30">30 sn</option>
+              <option value="45">45 sn</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-500 mb-1 block">Müzik Enerjisi</label>
+            <select id="musicMood" class="w-full bg-black/50 border border-white/10 rounded-xl px-2.5 py-2 text-xs">
+              <option value="chaotic">Kaotik Absürt</option>
+              <option value="epic" selected>Epik + Komik</option>
+              <option value="trap">Trap / Bass</option>
+              <option value="turkish">Türkçe Rap Fusion</option>
+              <option value="meme">Meme Classic</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-500 mb-1 block">Kling Motion</label>
+            <select id="klingMotion" class="w-full bg-black/50 border border-white/10 rounded-xl px-2.5 py-2 text-xs">
+              <option value="high" selected>Yüksek (önerilen)</option>
+              <option value="medium">Orta</option>
+              <option value="dynamic">Çok Dinamik</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-500 mb-1 block">Format</label>
+            <select id="aspect" class="w-full bg-black/50 border border-white/10 rounded-xl px-2.5 py-2 text-xs">
+              <option value="9:16" selected>9:16 Reels</option>
+              <option value="1:1">1:1 Kare</option>
+              <option value="16:9">16:9 Yatay</option>
+            </select>
           </div>
         </div>
       </div>
+
+      <button onclick="autoGenerate()" id="genBtn" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-fuchsia-600 via-violet-600 to-cyan-500 font-bold text-sm flex items-center justify-center gap-2 shadow-xl shadow-fuchsia-500/30 hover:opacity-95 active:scale-[0.99] transition-all">
+        <i data-lucide="wand-2" class="w-4 h-4"></i>
+        <span>Otomatik Üret (Kling + Suno + Paket)</span>
+      </button>
     </section>
 
-    <!-- HOW TO USE SUNO -->
-    <section class="glass rounded-3xl p-6 sm:p-8">
-      <h3 class="text-lg font-bold mb-4 flex items-center gap-2">
-        <i data-lucide="info" class="w-5 h-5 text-cyan-400"></i>
-        Suno’da Müzik Nasıl Oluşturulur? (Aynısı + Aynı Uzunluk)
-      </h3>
-      <div class="grid sm:grid-cols-3 gap-4 text-sm">
-        <div class="p-4 rounded-2xl bg-black/30 border border-white/5">
-          <div class="w-8 h-8 rounded-lg bg-fuchsia-500/20 flex items-center justify-center text-fuchsia-300 font-bold mb-3">1</div>
-          <p class="font-semibold text-slate-200">Suno’ya git</p>
-          <p class="text-xs text-slate-400 mt-1">suno.com → hesap aç (ücretsiz kredi var)</p>
-        </div>
-        <div class="p-4 rounded-2xl bg-black/30 border border-white/5">
-          <div class="w-8 h-8 rounded-lg bg-violet-500/20 flex items-center justify-center text-violet-300 font-bold mb-3">2</div>
-          <p class="font-semibold text-slate-200">Custom Mode aç</p>
-          <p class="text-xs text-slate-400 mt-1">Ürettiğimiz Suno promptunu yapıştır. Length’i seçtiğin saniyeye ayarla.</p>
-        </div>
-        <div class="p-4 rounded-2xl bg-black/30 border border-white/5">
-          <div class="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-300 font-bold mb-3">3</div>
-          <p class="font-semibold text-slate-200">Generate + Download</p>
-          <p class="text-xs text-slate-400 mt-1">MP3 indir → CapCut / Premiere’e at, video AI sahneleriyle birleştir.</p>
+    <section id="resultSection" class="hidden space-y-4">
+      <div class="flex items-center justify-between flex-wrap gap-2">
+        <h3 class="font-bold text-lg flex items-center gap-2">
+          <i data-lucide="package-check" class="w-5 h-5 text-emerald-400"></i> Hazır Paket
+        </h3>
+        <div class="flex gap-2">
+          <button onclick="copyAll()" class="px-3 py-1.5 rounded-xl glass text-xs font-semibold flex items-center gap-1.5 hover:bg-white/10">
+            <i data-lucide="clipboard" class="w-3.5 h-3.5"></i> Hepsini Kopyala
+          </button>
+          <button onclick="downloadPackage()" class="px-3 py-1.5 rounded-xl bg-white text-black text-xs font-bold flex items-center gap-1.5 hover:bg-slate-200">
+            <i data-lucide="download" class="w-3.5 h-3.5"></i> .txt İndir
+          </button>
         </div>
       </div>
-      <p class="text-xs text-slate-500 mt-4">
-        Not: Ben Suno hesabı açıp senin için müzik üretemem (harici hesap), ama senin promptunu <strong class="text-fuchsia-300">videodaki gibi + aynı uzunlukta</strong> olacak şekilde otomatik ayarlıyorum. Promptu kopyala, Suno’ya yapıştır, bitti.
-      </p>
+      <div id="loadingBox" class="hidden glass rounded-2xl p-10 text-center">
+        <div class="inline-flex flex-col items-center gap-3">
+          <div class="w-10 h-10 border-2 border-fuchsia-400 border-t-transparent rounded-full animate-spin"></div>
+          <p class="text-sm text-fuchsia-300 font-medium">Referansı analiz ediyor + Kling & Suno yazıyor...</p>
+        </div>
+      </div>
+      <div id="resultCards" class="space-y-4"></div>
     </section>
 
-    <!-- FOOTER -->
-    <footer class="text-center text-xs text-slate-600 pb-10">
-      <p>Ucube Studio • DüzgünTerim style absürt meme generator • 2026</p>
-      <p class="mt-1">Suno Music AI + Kling/Runway/Luma uyumlu prompt motoru</p>
-    </footer>
+    <section class="glass rounded-2xl p-5">
+      <h3 class="font-bold text-sm mb-4 flex items-center gap-2"><i data-lucide="list-ordered" class="w-4 h-4 text-cyan-400"></i> Nasıl Kullanacaksın?</h3>
+      <div class="grid sm:grid-cols-3 gap-4 text-xs">
+        <div class="p-3.5 rounded-xl bg-black/30 border border-white/5">
+          <div class="font-bold text-fuchsia-300 mb-1">1. Kling’e git</div>
+          <p class="text-slate-400">kling.ai → Text-to-Video. Kling Prompt’u yapıştır. Motion High. Generate.</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-black/30 border border-white/5">
+          <div class="font-bold text-violet-300 mb-1">2. Suno’ya git</div>
+          <p class="text-slate-400">suno.com → Custom. Suno Prompt’u yapıştır. Duration’ı seç. Generate → MP3.</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-black/30 border border-white/5">
+          <div class="font-bold text-cyan-300 mb-1">3. CapCut’ta birleştir</div>
+          <p class="text-slate-400">Kling videosu + Suno + konuşturma (TTS) + overlay. Export 9:16 → Insta.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="text-center text-[11px] text-slate-600 pb-8">Ucube Studio • Insta referans + istek → otomatik Kling + Suno • 2026</footer>
   </main>
 
   <script>
-    // ========== DATA ==========
-    const PRODUCTS = [
-      {
-        id: "pilic",
-        emoji: "🐔",
-        name: "Piliç Saldırısı (Klasik)",
-        desc: "Piliç suyu içen adam azıyor, tavuklara saldırıyor. En viral ucube.",
-        tags: ["piliç", "saldırı", "absürt", "konuşturma"],
-        baseSuno: "chaotic turkish meme song, chicken clucking samples, sudden bass drops, comedic male Turkish voice adlibs, high energy trap beat, absurd comedy",
-        videoStyle: "hyper-realistic absurd comedy, Turkish man drinking chicken broth then going feral attacking chickens, panicking poultry, cinematic comedy timing, dramatic lighting"
-      },
-      {
-        id: "burak",
-        emoji: "🧔",
-        name: "Burak Karakteri",
-        desc: "Burak her videoda farklı absürt olay yaşıyor. Karakter tutarlılığı yüksek.",
-        tags: ["burak", "karakter", "seri"],
-        baseSuno: "epic comedic soundtrack, Turkish male dramatic narration vibe, orchestral + trap hybrid, sudden comedic stings, meme energy",
-        videoStyle: "consistent male character named Burak, Turkish internet meme style, absurd daily life situations escalating insanely, talking head + reaction cuts"
-      },
-      {
-        id: "futbol",
-        emoji: "⚽",
-        name: "Futbol Ucube",
-        desc: "Maç özeti gibi ama tamamen saçma. Gol anı absürtleşiyor.",
-        tags: ["futbol", "gol", "yorum"],
-        baseSuno: "stadium crowd roar samples, turkish football commentator energy, dramatic orchestral swell then comedic fail sounds, high tempo",
-        videoStyle: "football match absurd comedy, over-the-top slow motion goals that turn into chaos, Turkish commentary style text overlays"
-      },
-      {
-        id: "celebrity",
-        emoji: "🌟",
-        name: "Ünlü Fail / Ucube",
-        desc: "Ünlü isimlerin absürt halleri, konuşturma + drama.",
-        tags: ["ünlü", "fail", "drama"],
-        baseSuno: "cinematic red carpet glamorous then sudden absurd drop, pop + trap, humorous celebrity roast vibe, short dramatic stabs",
-        videoStyle: "celebrity paparazzi style absurd comedy, glamorous to ridiculous transformation, talking mouth effects, glam lighting to chaos"
-      },
-      {
-        id: "gunluk",
-        emoji: "🏠",
-        name: "Günlük Hayat Ucube",
-        desc: "Normal bir gün aniden deliye dönüyor. En çok izlenen format.",
-        tags: ["günlük", "escalation"],
-        baseSuno: "slice of life chill start then escalating chaos music, turkish home atmosphere samples, sudden horror-comedy transition, meme beat",
-        videoStyle: "ordinary Turkish home/kitchen setting slowly turning into complete absurdity, character reaction close-ups, talking effects"
-      },
-      {
-        id: "hayvan",
-        emoji: "🐕",
-        name: "Hayvan Saldırısı / Konuşturma",
-        desc: "Hayvanlar konuşuyor veya saldırıyor. Klasik meme.",
-        tags: ["hayvan", "konuşturma"],
-        baseSuno: "animal sounds mixed with trap beat, talking animal comedy, chaotic fun energy, short punchy loops",
-        videoStyle: "animals with talking mouth effects, absurd animal behavior comedy, Turkish text bubbles, cute-to-chaos transition"
-      }
-    ];
+    const QUICK = {
+      pilic: { ref: "Adam (Burak tarzı) piliç suyu içiyor. Gözleri dönüyor, azıyor, piliçlere saldırıyor. Piliçler panik içinde kaçıyor. Türkçe konuşturma, abartılı efektler, 15-20s Reels ucube video.", want: "Aynı piliç saldırısı enerjisini koru ama daha abartılı olsun. Sonunda piliçler karşı saldırıya geçsin." },
+      burak: { ref: "Burak karakteri tutarlı. Normal bir şey yaparken absürt olay patlıyor, konuşturma, abartılı tepki, Türkçe meme tarzı.", want: "Burak markete giriyor, ürünler onunla konuşup yargılıyor. Burak deliye dönüyor." },
+      futbol: { ref: "Futbol maçı absürt. Gol anı saçmalaşıyor, yavaş çekim + kaos, Türkçe yorumcu, meme overlay.", want: "Penaltı atılıyor ama top hakemin kafasını kırıyor, herkes sevinçle kutluyor." },
+      celebrity: { ref: "Ünlü isimlerin absürt/fail halleri. Glamorous başlayıp komik kaosa dönüyor. Konuşturma + drama.", want: "Kırmızı halıda yürüyen ünlü kayıyor, herkes alkışlıyor, o da alkışlıyor." },
+      gunluk: { ref: "Normal günlük hayat sakin başlıyor, birden deliye dönüyor. Escalation + konuşturma.", want: "Kahvaltı yaparken ekmek konuşmaya başlıyor ve Burak'ı suçluyor." },
+      hayvan: { ref: "Hayvanlar konuşuyor veya absürt saldırıyor. Talking mouth, komik diyalog.", want: "Köpek ve kedi tartışıyor, sahibi araya girince ikisi birden ona saldırmaya başlıyor." },
+      duzgun: { ref: "DüzgünTerim tarzı genel ucube Instagram Reels: absürt, konuşturmalı, yüksek enerji, Türkçe text, 15-25s, meme vibe.", want: "En klasik ucube videoyu istiyorum, maksimum absürt olsun." }
+    };
 
-    let selectedProduct = PRODUCTS[0];
-
-    // ========== RENDER PRODUCTS ==========
-    function renderProducts() {
-      const grid = document.getElementById('productGrid');
-      grid.innerHTML = PRODUCTS.map(p => `
-        <button onclick="selectProduct('${p.id}')" id="prod-${p.id}"
-          class="product-card text-left p-5 rounded-2xl glass card-hover transition-all duration-300 ${selectedProduct.id === p.id ? 'product-active ring-2 ring-fuchsia-500 bg-fuchsia-500/10' : 'hover:bg-white/5'}">
-          <div class="text-3xl mb-3">${p.emoji}</div>
-          <h4 class="font-bold text-sm text-white mb-1">${p.name}</h4>
-          <p class="text-xs text-slate-400 leading-relaxed mb-3">${p.desc}</p>
-          <div class="flex flex-wrap gap-1.5">
-            ${p.tags.map(t => `<span class="px-2 py-0.5 rounded-md text-[10px] bg-white/5 text-slate-400">#${t}</span>`).join('')}
-          </div>
-        </button>
-      `).join('');
+    function applyQuickStyle() {
+      const val = document.getElementById('quickStyle').value;
+      if (!val || !QUICK[val]) return;
+      document.getElementById('instaRef').value = QUICK[val].ref;
+      document.getElementById('userWant').value = QUICK[val].want;
     }
 
-    function selectProduct(id) {
-      selectedProduct = PRODUCTS.find(p => p.id === id);
-      document.getElementById('selectedProductName').textContent = selectedProduct.name;
-      document.querySelector('#selectedProductBadge span:first-child').textContent = selectedProduct.emoji;
-      renderProducts();
-      // prefill example if empty
-      const ta = document.getElementById('userPrompt');
-      if (!ta.value.trim()) {
-        if (id === 'pilic') ta.value = "Burak bir kutu piliç suyu içiyor. Birden gözleri dönüyor, azıyor, etraftaki piliçlere saldırmaya başlıyor. Piliçler panik içinde bağırarak kaçıyor. Türkçe konuşturma ve abartılı efektler olsun.";
-        else if (id === 'burak') ta.value = "Burak markete gidiyor ama her ürün onunla konuşmaya başlıyor ve onu yargılamaya başlıyor. Burak deliye dönüyor.";
-        else if (id === 'futbol') ta.value = "Maçta penaltı atılıyor ama top kaleye girmek yerine hakemin kafasını kırıyor ve herkes kutlama yapıyor.";
-        else ta.value = "";
-      }
-    }
-
-    // ========== GENERATOR ==========
-    function generateAll() {
-      const prompt = document.getElementById('userPrompt').value.trim();
-      if (!prompt) {
-        alert("Lütfen bir ucube fikir / prompt yaz!");
-        return;
-      }
-
+    function autoGenerate() {
+      const link = document.getElementById('instaLink').value.trim();
+      const ref = document.getElementById('instaRef').value.trim();
+      const want = document.getElementById('userWant').value.trim();
       const length = document.getElementById('musicLength').value;
       const mood = document.getElementById('musicMood').value;
-      const extra = document.getElementById('musicExtra').value.trim();
+      const motion = document.getElementById('klingMotion').value;
+      const aspect = document.getElementById('aspect').value;
 
-      // show loading
-      document.getElementById('resultEmpty').classList.add('hidden');
-      document.getElementById('resultPanel').classList.remove('hidden');
-      document.getElementById('loadingState').classList.remove('hidden');
-      document.getElementById('resultsContent').classList.add('hidden');
-      document.getElementById('generateBtn').disabled = true;
-      document.getElementById('generateBtn').innerHTML = `<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Üretiliyor...`;
+      if (!ref && !want) { alert("En azından referans veya 'Ne istiyorsun' doldur kanka!"); return; }
 
-      // Simulate AI thinking (in real would call /api)
+      document.getElementById('resultSection').classList.remove('hidden');
+      document.getElementById('loadingBox').classList.remove('hidden');
+      document.getElementById('resultCards').innerHTML = '';
+      document.getElementById('genBtn').disabled = true;
+      document.getElementById('genBtn').innerHTML = '<div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div> Üretiliyor...';
+
       setTimeout(() => {
-        const result = buildResult(prompt, length, mood, extra);
-        renderResult(result);
-        document.getElementById('loadingState').classList.add('hidden');
-        document.getElementById('resultsContent').classList.remove('hidden');
-        document.getElementById('generateBtn').disabled = false;
-        document.getElementById('generateBtn').innerHTML = `<i data-lucide="wand-2" class="w-4 h-4"></i><span>Ucube Video + Müzik Üret</span>`;
+        const pack = buildPack({ link, ref, want, length, mood, motion, aspect });
+        renderPack(pack);
+        document.getElementById('loadingBox').classList.add('hidden');
+        document.getElementById('genBtn').disabled = false;
+        document.getElementById('genBtn').innerHTML = '<i data-lucide="wand-2" class="w-4 h-4"></i><span>Otomatik Üret (Kling + Suno + Paket)</span>';
         lucide.createIcons();
-      }, 1400 + Math.random() * 800);
+        document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 1500 + Math.random() * 800);
     }
 
-    function buildResult(userPrompt, length, mood, extra) {
-      const p = selectedProduct;
-
-      // --- SUNO PROMPT (core of request) ---
-      const moodMap = {
-        chaotic: "extremely chaotic, glitchy, sudden tempo changes, absurd comedy",
-        epic: "epic orchestral hybrid with trap drums, heroic yet ridiculous, big impact hits",
-        trap: "hard trap beat, 808s, hi-hat rolls, dark comedic energy",
-        cinematic: "cinematic trailer style, dramatic strings and brass, then comedic twist",
-        turkish: "turkish rap flow + arabesk melodies + modern trap, male turkish vocal chops",
-        meme: "classic internet meme music, high energy, catchy hook, punchy drops"
+    function buildPack({ link, ref, want, length, mood, motion, aspect }) {
+      const shortWant = (want || ref).slice(0, 140);
+      const motionMap = {
+        high: "high motion, dynamic camera, strong physics, energetic action",
+        medium: "medium motion, natural movement, smooth camera",
+        dynamic: "extreme dynamic motion, chaotic camera, high energy physics"
       };
+      const kling = `Absurd Turkish internet meme video, vertical ${aspect}, cinematic comedy.
+Style reference: chaotic exaggerated Turkish Reels / DüzgünTerim style ucube video.
+${ref ? 'Reference vibe: ' + ref.slice(0, 220) : ''}
+Main idea: ${want || ref}
+${motionMap[motion]}, photorealistic + cartoon exaggeration hybrid, talking mouth effects, exaggerated facial expressions, dramatic lighting, high detail, 24fps, Instagram Reels ready.
+Comedic timing, sudden chaos escalation, text overlay spaces.`;
 
-      let suno = `${moodMap[mood] || moodMap.epic}, ${p.baseSuno}`;
-      if (extra) suno += `, ${extra}`;
-      suno += `, exactly ${length} seconds long, perfect loopable for Instagram Reels, no long intro, immediate energy, high quality production`;
-      // make it match user idea
-      suno += `. Theme inspired by: ${userPrompt.slice(0, 120)}...`;
+      const moodMap = {
+        chaotic: "extremely chaotic glitchy, sudden tempo changes, absurd comedy stings",
+        epic: "epic orchestral + trap hybrid, heroic yet ridiculous, big impact hits",
+        trap: "hard trap beat, heavy 808s, hi-hat rolls, dark comedic energy",
+        turkish: "turkish rap flow + arabesk + modern trap, male turkish vocal chops",
+        meme: "classic high-energy internet meme music, catchy hook, punchy drops"
+      };
+      const suno = `${moodMap[mood]}, high quality, exactly ${length} seconds long, perfect for Instagram Reels, no long intro, immediate energy, loopable.
+Inspired by absurd Turkish meme video soundtrack. Theme: ${shortWant}. Comical timing, sudden drops matching action peaks.`;
 
-      // --- VIDEO AI PROMPT ---
-      const videoPrompt = `${p.videoStyle}. Scene description: ${userPrompt}. Style: high quality absurd Turkish internet meme video, cinematic lighting, dynamic camera, talking mouth effects on characters, exaggerated expressions, text overlays ready, 9:16 vertical, 24fps, photorealistic + cartoon exaggeration hybrid. Duration feel: ~${length}s.`;
-
-      // --- SCRIPT / KONUŞTURMA ---
-      const lines = generateDialogue(userPrompt, p.id);
-
-      // --- TEXT OVERLAYS ---
-      const overlays = [
-        "AZIYOR!!!",
-        "NE OLUYOR???",
-        "PİLİÇLER KAÇIN",
-        "BU ADAM DELİRDİ",
-        "SONUNDA OLMASI GEREKEN",
-        "DÜZGÜNTERİM STYLE"
-      ].slice(0, 4);
-
-      // storyboard
+      const dialogue = makeDialogue(want || ref);
+      const overlays = makeOverlays(want || ref);
       const scenes = [
-        { t: "0-3s", desc: "Normal giriş / setup. Karakter sakin." },
-        { t: "3-8s", desc: "Tetikleyici olay (içme / görme / duyma)." },
-        { t: "8-14s", desc: "Dönüşüm + absürt aksiyon başlar. Müzik drop." },
-        { t: "14-" + length + "s", desc: "Kaos zirvesi + komik final + text spam." }
+        { t: `0-${Math.round(length*0.15)}s`, d: "Setup / normal başlangıç." },
+        { t: `${Math.round(length*0.15)}-${Math.round(length*0.35)}s`, d: "Tetikleyici olay." },
+        { t: `${Math.round(length*0.35)}-${Math.round(length*0.7)}s`, d: "Dönüşüm + absürt aksiyon. Müzik drop." },
+        { t: `${Math.round(length*0.7)}-${length}s`, d: "Kaos zirvesi + komik final + text." }
       ];
-
-      return { suno, videoPrompt, lines, overlays, scenes, length, product: p };
+      return { link, ref, want, length, mood, motion, aspect, kling, suno, dialogue, overlays, scenes, created: new Date().toLocaleString('tr-TR') };
     }
 
-    function generateDialogue(prompt, productId) {
-      // Simple smart templates based on product + keywords
-      const lower = prompt.toLowerCase();
-      if (productId === "pilic" || lower.includes("piliç") || lower.includes("tavuk")) {
+    function makeDialogue(text) {
+      const t = (text || "").toLowerCase();
+      if (t.includes("piliç") || t.includes("tavuk") || t.includes("saldır")) {
         return [
-          { who: "Burak", text: "Aaa piliç suyu... bir yudum alayım..." },
-          { who: "Burak", text: "NE OLDU BANA??? GÖZLERİM DÖNÜYOR!!!" },
-          { who: "Piliç", text: "KAKAAK! KAÇIN BU DELİYİ!!!" },
-          { who: "Burak", text: "GEL BURAYA PİLİÇ!!! SENİ SEVECEĞİM!!!" },
-          { who: "Anlatıcı", text: "Ve o günden sonra köyde piliç kalmadı." }
+          { who: "Burak", line: "Aaa piliç suyu... bir yudum alayım be..." },
+          { who: "Burak", line: "NE OLDU BANA??? GÖZLERİM DÖNÜYOR!!!" },
+          { who: "Piliç", line: "KAKAAAK! KAÇIN BU DELİYİ!!!" },
+          { who: "Burak", line: "GEL BURAYA PİLİÇ!!! SENİ SEVİCEM!!!" },
+          { who: "Anlatıcı", line: "Ve o günden sonra köyde piliç kalmadı." }
         ];
       }
-      if (productId === "burak") {
+      if (t.includes("inek") || t.includes("kola")) {
         return [
-          { who: "Burak", text: "Bugün normal bir gün olacak..." },
-          { who: "Ürün", text: "Sen mi? Yine mi sen Burak?" },
-          { who: "Burak", text: "Sus! Konuşma!" },
-          { who: "Herkes", text: "BURAK YİNE BAŞLADI!!!" }
+          { who: "Burak", line: "Kola içeyim de ferahlayayım..." },
+          { who: "Burak", line: "INEKLER... SİZİ GÖRÜYORUM!!!" },
+          { who: "İnek", line: "Möööö! Bu adam delirdi kaçın!!!" },
+          { who: "Burak", line: "GELİN BURAYA!!! SEVGİ DOLUYUM!!!" }
         ];
       }
-      // generic
+      if (t.includes("futbol") || t.includes("gol") || t.includes("penaltı")) {
+        return [
+          { who: "Yorumcu", line: "Penaltı... vuruyor..." },
+          { who: "Yorumcu", line: "TOP HAKEMİN KAFASINA GİRDİ!!!" },
+          { who: "Kalabalık", line: "GOOOOOL!!! (alkışlar)" },
+          { who: "Hakem", line: "Ben de sevinmeli miyim???" }
+        ];
+      }
       return [
-        { who: "Karakter", text: "Bu sefer farklı olacak sandım..." },
-        { who: "Karakter", text: "OLAMAZ... BU NE???" },
-        { who: "Anlatıcı", text: "Her şey kontrolden çıktı." },
-        { who: "Karakter", text: "YARDIM EDİN!!!" }
+        { who: "Karakter", line: "Bu sefer normal geçecek sandım..." },
+        { who: "Karakter", line: "OLAMAZ... BU NE BÖYLE???" },
+        { who: "Anlatıcı", line: "Her şey kontrolden çıktı." },
+        { who: "Karakter", line: "YARDIM EDİN LAN!!!" }
       ];
     }
 
-    function renderResult(r) {
-      const html = `
-        <!-- SUNO -->
-        <div class="rounded-2xl border border-fuchsia-500/30 bg-fuchsia-500/5 overflow-hidden">
-          <div class="px-4 py-3 bg-fuchsia-500/10 border-b border-fuchsia-500/20 flex items-center justify-between">
-            <div class="flex items-center gap-2 text-sm font-bold text-fuchsia-300">
-              <i data-lucide="music" class="w-4 h-4"></i>
-              Suno Music AI Prompt (${r.length}s)
-            </div>
-            <button onclick="copyText('sunoPrompt')" class="text-[11px] px-3 py-1 rounded-lg bg-fuchsia-600 hover:bg-fuchsia-500 font-semibold flex items-center gap-1">
-              <i data-lucide="copy" class="w-3 h-3"></i> Kopyala
-            </button>
-          </div>
-          <div class="p-4">
-            <pre id="sunoPrompt" class="text-[11px] leading-relaxed text-slate-300 font-mono whitespace-pre-wrap select-all">${escapeHtml(r.suno)}</pre>
-            <p class="text-[10px] text-slate-500 mt-3">→ suno.com → Custom → bu promptu yapıştır → Duration: ${r.length}s → Generate</p>
-          </div>
-        </div>
+    function makeOverlays(text) {
+      const t = (text || "").toLowerCase();
+      if (t.includes("piliç") || t.includes("tavuk")) return ["PİLİÇ SUYU İÇTİ", "AZIYOR!!!", "PİLİÇLER KAÇIN", "KÖY BİTTİ", "DÜZGÜNTERİM"];
+      if (t.includes("futbol")) return ["GOOOOL?", "HAKEM BAYILDI", "NE OLUYOR", "EFSANE AN", "VAR MI BÖYLE GOL"];
+      return ["AZIYOR!!!", "NE OLUYOR???", "BU ADAM DELİRDİ", "KAÇIN!!!", "SONUNDA", "DÜZGÜNTERİM STYLE"];
+    }
 
-        <!-- VIDEO PROMPT -->
-        <div class="rounded-2xl border border-violet-500/30 bg-violet-500/5 overflow-hidden">
-          <div class="px-4 py-3 bg-violet-500/10 border-b border-violet-500/20 flex items-center justify-between">
-            <div class="flex items-center gap-2 text-sm font-bold text-violet-300">
-              <i data-lucide="clapperboard" class="w-4 h-4"></i>
-              Video AI Prompt (Kling / Runway / Luma)
-            </div>
-            <button onclick="copyText('videoPrompt')" class="text-[11px] px-3 py-1 rounded-lg bg-violet-600 hover:bg-violet-500 font-semibold flex items-center gap-1">
-              <i data-lucide="copy" class="w-3 h-3"></i> Kopyala
-            </button>
+    function renderPack(p) {
+      window._pack = p;
+      document.getElementById('resultCards').innerHTML = `
+        <div class="rounded-2xl border border-fuchsia-500/35 bg-fuchsia-500/5 overflow-hidden">
+          <div class="px-4 py-3 bg-fuchsia-500/10 border-b border-fuchsia-500/20 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 text-sm font-bold text-fuchsia-300"><i data-lucide="clapperboard" class="w-4 h-4"></i> Kling AI Prompt (kling.ai)</div>
+            <button onclick="copyId('klingBox')" class="shrink-0 text-[11px] px-3 py-1 rounded-lg bg-fuchsia-600 hover:bg-fuchsia-500 font-semibold flex items-center gap-1"><i data-lucide="copy" class="w-3 h-3"></i> Kopyala</button>
           </div>
-          <div class="p-4">
-            <pre id="videoPrompt" class="text-[11px] leading-relaxed text-slate-300 font-mono whitespace-pre-wrap select-all">${escapeHtml(r.videoPrompt)}</pre>
-          </div>
+          <pre id="klingBox" class="p-4 text-[11px] leading-relaxed text-slate-300 font-mono whitespace-pre-wrap select-all">${esc(p.kling)}</pre>
         </div>
-
-        <!-- DIALOGUE -->
-        <div class="rounded-2xl border border-cyan-500/30 bg-cyan-500/5 overflow-hidden">
-          <div class="px-4 py-3 bg-cyan-500/10 border-b border-cyan-500/20 flex items-center justify-between">
-            <div class="flex items-center gap-2 text-sm font-bold text-cyan-300">
-              <i data-lucide="message-circle" class="w-4 h-4"></i>
-              Konuşturma / Diyalog Metinleri
-            </div>
-            <button onclick="copyText('dialogueBlock')" class="text-[11px] px-3 py-1 rounded-lg bg-cyan-600 hover:bg-cyan-500 font-semibold flex items-center gap-1">
-              <i data-lucide="copy" class="w-3 h-3"></i> Kopyala
-            </button>
+        <div class="rounded-2xl border border-violet-500/35 bg-violet-500/5 overflow-hidden">
+          <div class="px-4 py-3 bg-violet-500/10 border-b border-violet-500/20 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2 text-sm font-bold text-violet-300"><i data-lucide="music" class="w-4 h-4"></i> Suno Music Prompt (${p.length}s)</div>
+            <button onclick="copyId('sunoBox')" class="shrink-0 text-[11px] px-3 py-1 rounded-lg bg-violet-600 hover:bg-violet-500 font-semibold flex items-center gap-1"><i data-lucide="copy" class="w-3 h-3"></i> Kopyala</button>
           </div>
-          <div class="p-4 space-y-2" id="dialogueBlock">
-            ${r.lines.map(l => `
-              <div class="flex gap-3 text-xs">
-                <span class="font-bold text-cyan-400 shrink-0 w-20">${l.who}:</span>
-                <span class="text-slate-300">"${l.text}"</span>
-              </div>
-            `).join('')}
-          </div>
+          <pre id="sunoBox" class="p-4 text-[11px] leading-relaxed text-slate-300 font-mono whitespace-pre-wrap select-all">${esc(p.suno)}</pre>
+          <p class="px-4 pb-3 text-[10px] text-slate-500">→ suno.com → Custom → Duration: ${p.length}s → Generate</p>
         </div>
-
-        <!-- STORYBOARD + OVERLAYS -->
         <div class="grid sm:grid-cols-2 gap-4">
-          <div class="rounded-2xl border border-white/10 bg-black/30 p-4">
-            <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Storyboard (${r.length}s)</h5>
-            <div class="space-y-2">
-              ${r.scenes.map(s => `
-                <div class="flex gap-2 text-[11px]">
-                  <span class="font-mono text-fuchsia-400 shrink-0">${s.t}</span>
-                  <span class="text-slate-300">${s.desc}</span>
-                </div>
-              `).join('')}
+          <div class="rounded-2xl border border-cyan-500/30 bg-cyan-500/5 overflow-hidden">
+            <div class="px-4 py-2.5 bg-cyan-500/10 border-b border-cyan-500/20 flex items-center justify-between">
+              <span class="text-xs font-bold text-cyan-300 flex items-center gap-1.5"><i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Konuşturma</span>
+              <button onclick="copyId('diaBox')" class="text-[10px] px-2 py-0.5 rounded bg-cyan-600/80 font-semibold">Kopyala</button>
+            </div>
+            <div id="diaBox" class="p-3.5 space-y-1.5 text-[11px]">
+              ${p.dialogue.map(d => `<div><span class="text-cyan-400 font-bold">${d.who}:</span> <span class="text-slate-300">"${d.line}"</span></div>`).join('')}
             </div>
           </div>
           <div class="rounded-2xl border border-white/10 bg-black/30 p-4">
-            <h5 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Text Overlay Önerileri</h5>
-            <div class="flex flex-wrap gap-2">
-              ${r.overlays.map(o => `<span class="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-xs font-bold text-white">${o}</span>`).join('')}
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2.5">Text Overlay</div>
+            <div class="flex flex-wrap gap-1.5 mb-4">
+              ${p.overlays.map(o => `<span class="px-2 py-1 rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold">${o}</span>`).join('')}
             </div>
-            <p class="text-[10px] text-slate-500 mt-3">CapCut’ta Impact font + sarı/kırmızı stroke kullan</p>
+            <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Storyboard</div>
+            <div class="space-y-1 text-[11px]">
+              ${p.scenes.map(s => `<div class="flex gap-2"><span class="text-fuchsia-400 font-mono shrink-0">${s.t}</span><span class="text-slate-300">${s.d}</span></div>`).join('')}
+            </div>
           </div>
         </div>
-
-        <!-- DOWNLOAD PACKAGE -->
-        <div class="flex flex-wrap gap-3 pt-2">
-          <button onclick="downloadPackage()" class="flex-1 min-w-[140px] py-2.5 rounded-xl bg-white text-black text-xs font-bold flex items-center justify-center gap-2 hover:bg-slate-200 transition">
-            <i data-lucide="download" class="w-3.5 h-3.5"></i>
-            Tüm Paketi İndir (.txt)
-          </button>
-          <button onclick="copyAll()" class="flex-1 min-w-[140px] py-2.5 rounded-xl border border-white/15 text-xs font-bold flex items-center justify-center gap-2 hover:bg-white/5 transition">
-            <i data-lucide="clipboard" class="w-3.5 h-3.5"></i>
-            Hepsini Kopyala
-          </button>
-        </div>
+        <div class="text-[10px] text-slate-500 text-center">${p.link ? p.link : 'manuel referans'} • ${p.created}</div>
       `;
-      document.getElementById('resultsContent').innerHTML = html;
-      // store for download
-      window._lastResult = r;
       lucide.createIcons();
     }
 
-    function escapeHtml(str) {
-      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
+    function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-    function copyText(id) {
+    function copyId(id) {
       const el = document.getElementById(id);
-      const text = el.innerText || el.textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        // toast
+      navigator.clipboard.writeText(el.innerText || el.textContent).then(() => {
         const btn = event.currentTarget;
         const old = btn.innerHTML;
-        btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i> Kopyalandı!';
+        btn.innerHTML = '<i data-lucide="check" class="w-3 h-3"></i> Kopyalandı';
         lucide.createIcons();
-        setTimeout(() => { btn.innerHTML = old; lucide.createIcons(); }, 1500);
+        setTimeout(() => { btn.innerHTML = old; lucide.createIcons(); }, 1400);
       });
     }
 
     function copyAll() {
-      if (!window._lastResult) return;
-      const r = window._lastResult;
-      const full = `=== UCUBE STUDIO PAKET ===\nTema: ${r.product.name}\nUzunluk: ${r.length}s\n\n--- SUNO PROMPT ---\n${r.suno}\n\n--- VIDEO AI PROMPT ---\n${r.videoPrompt}\n\n--- DİYALOG ---\n${r.lines.map(l => l.who + ': "' + l.text + '"').join('\n')}\n\n--- OVERLAY ---\n${r.overlays.join(' | ')}\n`;
+      if (!window._pack) return;
+      const p = window._pack;
+      const full = `=== UCUBE STUDIO OTOMATİK PAKET ===\nTarih: ${p.created}\nReferans: ${p.link || '-'}\nAçıklama: ${p.ref || '-'}\nİstek: ${p.want || '-'}\n\n========== KLING AI PROMPT ==========\n${p.kling}\n\n========== SUNO MUSIC PROMPT (${p.length}s) ==========\n${p.suno}\n\n========== KONUŞTURMA ==========\n${p.dialogue.map(d => d.who + ': "' + d.line + '"').join('\n')}\n\n========== OVERLAY ==========\n${p.overlays.join(' | ')}\n\n========== STORYBOARD ==========\n${p.scenes.map(s => s.t + ' → ' + s.d).join('\n')}\n\n→ Kling'e at, Suno'ya at, CapCut'ta birleştir.\nUcube Studio 🔥`;
       navigator.clipboard.writeText(full).then(() => alert("Tüm paket panoya kopyalandı!"));
     }
 
     function downloadPackage() {
-      if (!window._lastResult) return;
-      const r = window._lastResult;
-      const full = `UCUBE STUDIO - DüzgünTerim Style Video Paketi
-========================================
-Tema: ${r.product.name}
-Müzik Uzunluğu: ${r.length} saniye
-Oluşturulma: ${new Date().toLocaleString('tr-TR')}
-
-========================================
-1. SUNO MUSIC AI PROMPT (Aynısını kullan)
-========================================
-${r.suno}
-
-→ suno.com → Custom Mode → bu metni yapıştır
-→ Duration: ${r.length} seconds
-→ Generate → MP3 indir
-
-========================================
-2. VIDEO AI PROMPT (Kling / Runway / Luma / Pika)
-========================================
-${r.videoPrompt}
-
-========================================
-3. KONUŞTURMA / DİYALOG
-========================================
-${r.lines.map(l => l.who + ': "' + l.text + '"').join('\n')}
-
-========================================
-4. TEXT OVERLAY ÖNERİLERİ
-========================================
-${r.overlays.join('\n')}
-
-========================================
-5. STORYBOARD
-========================================
-${r.scenes.map(s => s.t + ' → ' + s.desc).join('\n')}
-
-========================================
-Nasıl birleştirirsin?
-1. Suno'dan müziği indir
-2. Video AI'ya promptu ver (veya CapCut'ta sahneleri kendin çek)
-3. Diyalogları ElevenLabs veya CapCut text-to-speech ile seslendir
-4. Overlay'leri Impact font + stroke ile ekle
-5. Müziği timeline'a koy, drop'ları aksiyona hizala
-6. Export 9:16 1080x1920 → Instagram Reels
-
-Ucube Studio ile üretildi 🔥
-`;
+      if (!window._pack) return;
+      const p = window._pack;
+      const full = `UCUBE STUDIO - OTOMATİK KLING + SUNO PAKETİ\n=============================================\nOluşturulma: ${p.created}\nInstagram Referans: ${p.link || 'yok'}\n\nReferans Açıklama:\n${p.ref || '-'}\n\nSenin İsteğin:\n${p.want || '-'}\n\n=============================================\n1. KLING AI PROMPT (kling.ai)\n=============================================\n${p.kling}\n\nMotion: ${p.motion} | Aspect: ${p.aspect}\n\n=============================================\n2. SUNO MUSIC AI PROMPT (suno.com)\n=============================================\n${p.suno}\n\nDuration: ${p.length} saniye\n\n=============================================\n3. KONUŞTURMA\n=============================================\n${p.dialogue.map(d => d.who + ': "' + d.line + '"').join('\n')}\n\n=============================================\n4. TEXT OVERLAY\n=============================================\n${p.overlays.join('\n')}\n\n=============================================\n5. STORYBOARD\n=============================================\n${p.scenes.map(s => s.t + ' → ' + s.d).join('\n')}\n\n=============================================\nNASIL:\n1. kling.ai → Text to Video → promptu yapıştır → Generate\n2. suno.com → Custom → promptu yapıştır → ${p.length}s → Generate → MP3\n3. CapCut → birleştir → Export 9:16\n\nUcube Studio 🔥\n`;
       const blob = new Blob([full], { type: 'text/plain;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url;
-      a.download = `ucube-${r.product.id}-${r.length}s-${Date.now()}.txt`;
+      a.href = URL.createObjectURL(blob);
+      a.download = `ucube-kling-suno-${p.length}s-${Date.now()}.txt`;
       a.click();
-      URL.revokeObjectURL(url);
     }
 
-    // INIT
-    renderProducts();
-    selectProduct('pilic');
     lucide.createIcons();
   </script>
 </body>

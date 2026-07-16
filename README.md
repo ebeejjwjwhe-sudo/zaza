@@ -1,31 +1,16 @@
-# Ucube Studio — AI Absürt Meme Video Üretici
+# Ucube Studio v2 — Insta Referans → Otomatik Kling + Suno
 
-DüzgünTerim tarzı ucube Instagram Reels / TikTok videoları için prompt motoru.
+## Ne değişti?
+- Instagram linki + referans açıklaması yükleyebiliyorsun
+- "Ne istiyorsun" yazıyorsun
+- Site **otomatik** Kling AI promptu + Suno müzik promptu (aynı uzunluk) + konuşturma + overlay + storyboard basıyor
 
-## Ne yapıyor?
+## Nasıl kullanılır?
+1. index.html'i tarayıcıda aç
+2. 1. adıma Instagram linkini veya ucube post açıklamasını yaz (hızlı stil seçenekleri var)
+3. 2. adımda ne istediğini yaz
+4. Müzik uzunluğu + Kling motion ayarla
+5. "Otomatik Üret" bas → paket hazır
+6. Kling promptunu kling.ai'ye, Suno'yu suno.com'a at, CapCut'ta birleştir
 
-- 6 farklı **ürün şablonu** (Piliç Saldırısı, Burak, Futbol, Ünlü, Günlük Hayat, Hayvan)
-- Kullanıcı promptuna göre değişen:
-  - **Suno Music AI** promptu (seçtiğin uzunlukta + mood’da, videodaki gibi)
-  - Video AI promptu (Kling / Runway / Luma / Pika ready)
-  - Konuşturma diyalogları
-  - Text overlay önerileri
-  - Storyboard
-- Tek tıkla kopyala + .txt paket indir
-
-## Nasıl çalıştırılır?
-
-Sadece `index.html` dosyasını tarayıcıda aç.  
-Hiçbir kurulum, npm, server gerekmez.
-
-Veya Vercel / Netlify’e sürükle-bırak deploy et.
-
-## Suno kullanımı
-
-1. Ürettiğin Suno promptunu kopyala
-2. [suno.com](https://suno.com) → Custom Mode
-3. Duration’ı seçtiğin saniyeye ayarla
-4. Generate → MP3 indir
-5. CapCut’ta video AI sahneleriyle birleştir
-
-Müzik, videodaki gibi + aynı uzunlukta olacak şekilde prompt otomatik ayarlanıyor.
+Hiçbir kurulum gerekmez.
